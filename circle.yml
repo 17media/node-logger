@@ -5,4 +5,4 @@ deployment:
   npm:
     branch: master
     commands:
-      - npm publish
+      - npm version patch && npm publish && git push origin
