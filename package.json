@@ -1,0 +1,29 @@
+{
+  "name": "@17media/node-logger",
+  "version": "1.0.0",
+  "description": "Centralized logger for 17.Media Node.JS projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/17media/node-logger.git"
+  },
+  "keywords": [
+    "logger",
+    "slack",
+    "fluentd"
+  ],
+  "author": "17media",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/17media/node-logger/issues"
+  },
+  "homepage": "https://github.com/17media/node-logger#readme",
+  "dependencies": {
+    "@slack/client": "^3.9.0",
+    "lodash": "^4.17.4",
+    "superagent": "^3.5.2"
+  }
+}
