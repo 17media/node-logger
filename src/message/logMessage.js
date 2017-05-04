@@ -1,5 +1,3 @@
-import { clone } from 'lodash';
-
 class LogMessage {
   constructor(message, fields = {}) {
     this.message = message;
@@ -15,11 +13,11 @@ class LogMessage {
   }
 
   toString() {
-    return clone(this.message);
+    return this.message;
   }
 
   toObject() {
-    return clone(this.fields);
+    return Object.assign({}, this.fields);
   }
 }
 
