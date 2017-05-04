@@ -1,6 +1,6 @@
 {
   "name": "@17media/node-logger",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Centralized logger for 17.Media Node.JS projects",
   "main": "lib/index.js",
   "scripts": {
