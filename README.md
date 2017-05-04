@@ -1,4 +1,4 @@
-# node-logger [![CircleCI](https://circleci.com/gh/17media/node-logger/tree/master.svg?style=svg)](https://circleci.com/gh/17media/node-logger/tree/master)
+# node-logger [![CircleCI](https://circleci.com/gh/17media/node-logger/tree/master.svg?style=shield)](https://circleci.com/gh/17media/node-logger/tree/master) [![npm version](https://badge.fury.io/js/%4017media%2Fnode-logger.svg)](https://badge.fury.io/js/%4017media%2Fnode-logger)
 Centralized logger for 17.Media Node.JS projects
 
 ## Intro
