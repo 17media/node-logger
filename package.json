@@ -2,7 +2,7 @@
   "name": "@17media/node-logger",
   "version": "1.0.0",
   "description": "Centralized logger for 17.Media Node.JS projects",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "babel src -d lib",
     "test": "test"
