@@ -4,6 +4,7 @@
   "description": "Centralized logger for 17.Media Node.JS projects",
   "main": "index.js",
   "scripts": {
+    "build": "babel src -d lib",
     "test": "test"
   },
   "repository": {
@@ -25,5 +26,9 @@
     "@slack/client": "^3.9.0",
     "lodash": "^4.17.4",
     "superagent": "^3.5.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-node6": "^11.0.0"
   }
 }
