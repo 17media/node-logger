@@ -40,4 +40,4 @@ class MasterLogger {
   }
 }
 
-module.exports = MasterLogger;
+export default MasterLogger;

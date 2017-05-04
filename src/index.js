@@ -3,7 +3,7 @@ import service from './service';
 import Logger from './logger';
 import LOG_LEVEL from './enum/logLevel';
 
-module.exports = {
+export {
   LOG_LEVEL,
   message,
   service,

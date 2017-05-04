@@ -21,4 +21,4 @@ class LogMessage {
   }
 }
 
-module.exports = LogMessage;
+export default LogMessage;

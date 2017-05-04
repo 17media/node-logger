@@ -19,4 +19,4 @@ class ErrorMessage extends LogMessage {
   }
 }
 
-module.exports = ErrorMessage;
+export default ErrorMessage;

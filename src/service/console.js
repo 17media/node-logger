@@ -10,4 +10,4 @@ class ConsoleLogger extends Logger {
   }
 };
 
-module.exports = ConsoleLogger;
+export default ConsoleLogger;

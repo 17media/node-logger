@@ -51,4 +51,4 @@ class SlackLogger extends Logger {
   }
 };
 
-module.exports = SlackLogger;
+export default SlackLogger;

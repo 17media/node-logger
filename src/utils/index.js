@@ -12,7 +12,7 @@ const hasAllKeys = (testObject, keys) => {
 
 const formatLogLevel = (logLevel) => ['debug', 'info', 'warn', 'error'][logLevel];
 
-module.exports = {
+export {
   hasAllKeys,
   formatLogLevel,
 };

@@ -38,4 +38,4 @@ class FluentdLogger extends Logger {
   }
 };
 
-module.exports = FluentdLogger;
+export default FluentdLogger;
