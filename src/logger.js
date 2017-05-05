@@ -1,6 +1,6 @@
 import { isObject } from 'lodash';
 
-import services from './service';
+import * as services from './service';
 
 class MasterLogger {
   constructor(config) {
