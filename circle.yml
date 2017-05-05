@@ -1,6 +1,19 @@
 dependencies:
   pre:
     - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+
+test:
+  override:
+    - rm -rf $CIRCLE_ARTIFACTS/coverage
+    - npm run lint
+    - npm run test
+    - cp -r coverage $CIRCLE_ARTIFACTS
+    - node node_modules/coveralls/bin/coveralls.js < coverage/coverage.lcov
+
+compile:
+  override:
+    - npm run build
+
 deployment:
   production:
     tag: /(v)?[0-9]+(\.[0-9]+)*/
