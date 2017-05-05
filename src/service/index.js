@@ -2,8 +2,10 @@ import SlackLogger from './slack';
 import FluentdLogger from './fluentd';
 import ConsoleLogger from './console';
 
-export default {
+const services = {
   SlackLogger,
   FluentdLogger,
   ConsoleLogger,
 };
+
+export default services;
