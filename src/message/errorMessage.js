@@ -1,5 +1,5 @@
 import { isError } from 'lodash';
-import LogMessage from './LogMessage';
+import LogMessage from './logMessage';
 
 class ErrorMessage extends LogMessage {
   constructor(message, err, fields = {}) {

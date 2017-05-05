@@ -29,13 +29,13 @@ class FluentdLogger extends Logger {
       logTime: new Date().getTime(),
     });
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       request
       .post(collectorUrl)
       .send(JSON.stringify(fluentdObject))
       .end(() => resolve());
     });
   }
-};
+}
 
 export default FluentdLogger;

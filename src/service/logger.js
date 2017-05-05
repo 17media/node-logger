@@ -25,9 +25,8 @@ class Logger {
   }
 
   // this function must be implemented by individual service
-  Log(logLevel, logMessage, label) {
-    throw new Error('not implemented');
-  }
+  // Log(logLevel, logMessage, label) {
+  // }
 }
 
 export default Logger;

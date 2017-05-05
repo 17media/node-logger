@@ -5,12 +5,10 @@ const hasAllKeys = (testObject, keys) => {
     return false;
   }
 
-  return keys.reduce((result, key) => {
-    return result && has(testObject, key);
-  })
+  return keys.reduce((result, key) => result && has(testObject, key));
 };
 
-const formatLogLevel = (logLevel) => ['debug', 'info', 'warn', 'error'][logLevel];
+const formatLogLevel = logLevel => ['debug', 'info', 'warn', 'error'][logLevel];
 
 export {
   hasAllKeys,

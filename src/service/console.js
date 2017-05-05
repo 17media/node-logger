@@ -8,6 +8,6 @@ class ConsoleLogger extends Logger {
     console.log(`[${formatLogLevel(logLevel)}]\n${project} - ${label}\n${logMessage.toString()}`);
     return Promise.resolve();
   }
-};
+}
 
 export default ConsoleLogger;

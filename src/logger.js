@@ -14,10 +14,10 @@ class MasterLogger {
     // merge base and service config
     .map(key => ({
       key,
-      config: Object.assign({}, config.base, config[key])
+      serviceConfig: Object.assign({}, config.base, config[key]),
     }))
     // create services from configs
-    .map(({ key, config }) => new services[key](config))
+    .map(({ key, serviceConfig }) => new services[key](serviceConfig))
     // filter out services with invalid configs
     .filter(service => service.IsConfigValid());
   }
@@ -25,7 +25,7 @@ class MasterLogger {
   // wrap Log function and reuse label
   Label(label) {
     return {
-      Log: (logLevel, logMessage) => this.Log(logLevel, logMessage, label)
+      Log: (logLevel, logMessage) => this.Log(logLevel, logMessage, label),
     };
   }
 

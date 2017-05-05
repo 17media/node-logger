@@ -31,7 +31,7 @@ class SlackLogger extends Logger {
 
     const logMessageFields = logMessage.toObject();
     const messageOpts = {
-      ['as_user']: true,
+      as_user: true,
       attachments: [
         {
           color: formatLogLevelSlackColor(logLevel),
@@ -49,6 +49,6 @@ class SlackLogger extends Logger {
     return this.slackClient.chat.postMessage(slackChannel, '', messageOpts)
       .catch(() => Promise.resolve());
   }
-};
+}
 
 export default SlackLogger;
