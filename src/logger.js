@@ -1,7 +1,8 @@
 import { isObject } from 'lodash';
 import * as services from './service';
+import LOG_LEVEL from './enum/logLevel';
 
-const { MIN_LOG_LEVEL: minLogLevel } = process.env;
+const { MIN_LOG_LEVEL } = process.env;
 
 class MasterLogger {
   constructor(config) {
@@ -20,7 +21,7 @@ class MasterLogger {
         config.base,
         config[key],
         // override minimum log level if specified by environment variable
-        minLogLevel ? { minLogLevel } : {}),
+        MIN_LOG_LEVEL ? { minLogLevel: LOG_LEVEL[MIN_LOG_LEVEL] } : {}),
     }))
     // create services from configs
     .map(({ key, serviceConfig }) => new services[key](serviceConfig))
