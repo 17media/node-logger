@@ -1,8 +1,4 @@
-import {
-  isObject,
-  isArray,
-  has,
-} from 'lodash';
+import { isObject, isArray, has } from 'lodash';
 
 const hasAllKeys = (testObject, keys) => {
   if (!isObject(testObject) || !isArray(keys)) {
