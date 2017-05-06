@@ -5,8 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "babel src -d lib",
-    "test": "./node_modules/mocha/bin/mocha --compilers js:babel-core/register ./test",
-    "lint": "./node_modules/eslint/bin/eslint.js ./src"
+    "test": "mocha --compilers js:babel-core/register ./test",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
