@@ -36,11 +36,13 @@ class SlackLogger extends Logger {
         {
           color: formatLogLevelSlackColor(logLevel),
           title: `[${formatLogLevel(logLevel).toUpperCase()}] ${logMessage.get('message')}`,
-          fields: Object.keys(logMessageFields).map(key => ({
-            title: key,
-            value: logMessageFields[key],
-            short: false,
-          })),
+          fields: Object.keys(logMessageFields)
+            .filter(key => !(key === 'message'))
+            .map(key => ({
+              title: key,
+              value: logMessageFields[key],
+              short: false,
+            })),
           footer: `${project} - ${environment} - ${label}`,
         },
       ],
