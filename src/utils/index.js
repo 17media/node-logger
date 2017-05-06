@@ -5,7 +5,7 @@ const hasAllKeys = (testObject, keys) => {
     return false;
   }
 
-  return keys.reduce((result, key) => result && has(testObject, key));
+  return keys.reduce((result, key) => result && has(testObject, key), true);
 };
 
 const formatLogLevel = logLevel => ['debug', 'info', 'warn', 'error'][logLevel];
