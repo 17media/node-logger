@@ -52,12 +52,14 @@ describe('flattenObject.js', () => {
 
   it('should remove circular references', () => {
     const obj1 = {
-      key1: 'value1',
+      key1: '11',
     };
 
     const obj2 = {
-      key1: 'value1',
-      obj1,
+      key1: '21',
+      deeper: {
+        obj1,
+      },
     };
 
     // create circular reference
@@ -73,8 +75,9 @@ describe('flattenObject.js', () => {
 
     const expected = {
       key1: 'value1',
-      'obj1.obj2.key1': 'value1',
-      'obj1.key1': 'value1',
+      'obj1.key1': '11',
+      'obj1.obj2.key1': '21',
+      'obj1.obj2.deeper.obj1': '[Circular Reference]',
     };
 
     expect(flattenObject(testObject)).to.deep.equal(expected);

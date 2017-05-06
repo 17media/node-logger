@@ -13,14 +13,12 @@ const formatLogLevel = logLevel => ['debug', 'info', 'warn', 'error'][logLevel];
 const flattenObject = (source, prefix = '', refSet = new Set()) => {
   // if type or source is primitive, return value directly
   if (!isObject(source)) {
-    const result = {};
-    result[prefix || 'value'] = source;
-    return result;
+    return { [prefix || 'value']: source };
   }
 
   // check for circular reference
   if (refSet.has(source)) {
-    return {};
+    return { [prefix || 'value']: '[Circular Reference]' };
   }
   refSet.add(source);
 
