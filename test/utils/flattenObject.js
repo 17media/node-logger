@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import deepFreeze from 'deep-freeze';
 import { flattenObject } from '../../lib/utils';
 
-describe('flattenObject.js', () => {
+describe('utils/flattenObject', () => {
   it('should return simple object for primitive types', () => {
     expect(flattenObject(10)).to.deep.equal({ value: 10 });
     expect(flattenObject('hsuan')).to.deep.equal({ value: 'hsuan' });

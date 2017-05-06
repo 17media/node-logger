@@ -19,7 +19,7 @@ class LogMessage {
   }
 
   toObject() {
-    return Object.assign({}, this.fields);
+    return Object.assign({}, { message: this.message }, this.fields);
   }
 }
 
