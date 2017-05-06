@@ -1,7 +1,9 @@
+import { flattenObject } from '../utils';
+
 class LogMessage {
   constructor(message, fields = {}) {
     this.message = message;
-    this.fields = fields;
+    this.fields = flattenObject(fields);
   }
 
   get(fieldName) {
