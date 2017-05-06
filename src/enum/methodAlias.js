@@ -5,5 +5,5 @@ export default {
   warn: LOG_LEVEL.WARN,
   info: LOG_LEVEL.INFO,
   debug: LOG_LEVEL.DEBUG,
-  log: LOG_LEVEL.DEBUG,
+  log: LOG_LEVEL.INFO,
 };
