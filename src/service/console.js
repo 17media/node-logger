@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import Logger from './logger';
 import { formatLogLevel } from '../utils';
 
@@ -11,3 +12,4 @@ class ConsoleLogger extends Logger {
 }
 
 export default ConsoleLogger;
+/* eslint-enable no-console */
