@@ -25,7 +25,6 @@ class FluentdLogger extends Logger {
       environment,
       label,
       level: formatLogLevel(logLevel),
-      message: logMessage.get('message'),
       logTime: new Date().getTime(),
     });
 
