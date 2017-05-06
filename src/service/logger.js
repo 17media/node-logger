@@ -8,7 +8,7 @@ const requiredConfig = [
 
 const baseConfig = {
   // default minimum log level when it's not specified
-  minLogLevel: LOG_LEVEL.ERROR,
+  minLogLevel: LOG_LEVEL.INFO,
 };
 
 // abstract base class for different logging services
