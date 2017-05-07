@@ -59,7 +59,8 @@ describe('logger', () => {
 
       expect(logger.services).to.have.length(1);
       expect(logger.services[0]).to.be.an.instanceof(SlackLogger);
-      expect(logger.services[0].config).to.deep.equals(Object.assign({}, config.base, config.SlackLogger));
+      expect(logger.services[0].config).to.deep.equals(
+        Object.assign({}, config.base, config.SlackLogger));
       expect(slackConfigCheck).to.have.been.calledOnce;
       expect(fluentdConfigCheck).to.not.have.been.called;
       expect(consoleConfigCheck).to.not.have.been.called;
