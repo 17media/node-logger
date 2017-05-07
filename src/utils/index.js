@@ -36,7 +36,7 @@ const hasAllKeys = (testObject, keys) => {
 const formatLogLevel = logLevel => ['debug', 'info', 'warn', 'error'][logLevel];
 
 // check if testLogMessage implements all interfaces of LogMessage
-const isLogMessage = testLogMessage => testLogMessage
+const isLogMessage = testLogMessage => !!testLogMessage
   && isObject(testLogMessage.toString)
   && isFunction(testLogMessage.toString)
   && isFunction(testLogMessage.toObject)
