@@ -13,25 +13,19 @@ const { expect } = chai;
 chai.use(sinonChai);
 
 describe('service/console', () => {
-  beforeEach(() => {
-    sinon.spy(console, 'log');
-  });
-
-  afterEach(() => {
-    console.log.restore();
-  });
-
   it('should log to console', () => {
+    const mockConsole = sinon.stub(console, 'log');
     const config = {
       project: 'cool project',
       environment: 'production',
     };
 
     const logger = new ConsoleLogger(config);
-
     logger.Log(LOG_LEVEL.ERROR, new LogMessage('something happened'), 'some:label');
 
-    expect(console.log).to.have.been.calledOnce;
+    expect(mockConsole).to.have.been.calledOnce;
+
+    mockConsole.restore();
   });
 });
 /* eslint-enable no-console, no-unused-expressions */

@@ -1,14 +1,4 @@
-import { isObject, isArray, has } from 'lodash';
-
-const hasAllKeys = (testObject, keys) => {
-  if (!isObject(testObject) || !isArray(keys)) {
-    return false;
-  }
-
-  return keys.reduce((result, key) => result && has(testObject, key), true);
-};
-
-const formatLogLevel = logLevel => ['debug', 'info', 'warn', 'error'][logLevel];
+import { has, isArray, isFunction, isObject } from 'lodash';
 
 const flattenObject = (source, prefix = '', refSet = new Set()) => {
   // if type or source is primitive, return value directly
@@ -35,8 +25,26 @@ const flattenObject = (source, prefix = '', refSet = new Set()) => {
   );
 };
 
+const hasAllKeys = (testObject, keys) => {
+  if (!isObject(testObject) || !isArray(keys)) {
+    return false;
+  }
+
+  return keys.reduce((result, key) => result && has(testObject, key), true);
+};
+
+const formatLogLevel = logLevel => ['debug', 'info', 'warn', 'error'][logLevel];
+
+// check if testLogMessage implements all interfaces of LogMessage
+const isLogMessage = testLogMessage => testLogMessage
+  && isObject(testLogMessage.toString)
+  && isFunction(testLogMessage.toString)
+  && isFunction(testLogMessage.toObject)
+  && isFunction(testLogMessage.get);
+
 export {
-  hasAllKeys,
-  formatLogLevel,
   flattenObject,
+  formatLogLevel,
+  hasAllKeys,
+  isLogMessage,
 };

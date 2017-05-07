@@ -1,4 +1,4 @@
-import { isObject } from 'lodash';
+import { isObject, isArray } from 'lodash';
 import * as services from './service';
 import LOG_LEVEL from './enum/logLevel';
 
@@ -6,7 +6,7 @@ const { MIN_LOG_LEVEL } = process.env;
 
 class MasterLogger {
   constructor(config) {
-    if (!isObject(config)) {
+    if (!isObject(config) || isArray(config)) {
       throw new Error('invalid config');
     }
 

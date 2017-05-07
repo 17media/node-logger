@@ -1,5 +1,6 @@
 import isError from 'lodash/isError';
 import Logger from './logger';
+import { isLogMessage } from './utils';
 import { LogMessage, ErrorMessage } from './message';
 import methodAlias from './enum/methodAlias';
 
@@ -12,7 +13,7 @@ const createLogger = (config) => {
     const logger = level => (...args) => {
       let msg;
 
-      if (args.length === 1 && typeof args[0] === 'function' && args[0].prototype instanceof LogMessage) {
+      if (args.length === 1 && isLogMessage(args[0])) {
         // custom extended log message
         msg = args[0];
       } else if (args.find(isError)) {
@@ -23,13 +24,10 @@ const createLogger = (config) => {
         msg = new LogMessage(...args);
       }
 
-      labelledLogger.Log(
-        level,
-        msg,
-      );
+      labelledLogger.Log(level, msg);
     };
 
-    methodAlias.forEach((method) => {
+    Object.keys(methodAlias).forEach((method) => {
       logger[method] = logger(methodAlias[method]);
     });
 
