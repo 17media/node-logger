@@ -1,9 +1,10 @@
-import LOG_LEVEL from './logLevel';
+import Level from './level';
 
 export default {
-  error: LOG_LEVEL.ERROR,
-  warn: LOG_LEVEL.WARN,
-  info: LOG_LEVEL.INFO,
-  debug: LOG_LEVEL.DEBUG,
-  log: LOG_LEVEL.INFO,
+  fatal: Level.FATAL,
+  error: Level.ERROR,
+  warn: Level.WARN,
+  info: Level.INFO,
+  debug: Level.DEBUG,
+  log: Level.INFO,
 };

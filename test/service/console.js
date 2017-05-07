@@ -5,8 +5,8 @@ import sinonChai from 'sinon-chai';
 import chai from 'chai';
 
 import { LogMessage } from '../../lib/message';
-import { ConsoleLogger } from '../../lib/service';
-import LOG_LEVEL from '../../lib/enum/logLevel';
+import { Console } from '../../lib/service';
+import Level from '../../lib/enum/level';
 
 const { expect } = chai;
 
@@ -20,8 +20,8 @@ describe('service/console', () => {
       environment: 'production',
     };
 
-    const logger = new ConsoleLogger(config);
-    logger.Log(LOG_LEVEL.ERROR, new LogMessage('something happened'), 'some:label');
+    const logger = new Console(config);
+    logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
 
     expect(mockConsole).to.have.been.calledOnce;
 

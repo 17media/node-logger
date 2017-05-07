@@ -1,4 +1,4 @@
-import LOG_LEVEL from '../enum/logLevel';
+import Level from '../enum/level';
 import { hasAllKeys } from '../utils';
 
 const requiredConfig = [
@@ -8,7 +8,7 @@ const requiredConfig = [
 
 const baseConfig = {
   // default minimum log level when it's not specified
-  minLogLevel: LOG_LEVEL.INFO,
+  logLevel: Level.INFO,
 };
 
 // abstract base class for different logging services
@@ -21,13 +21,13 @@ class Logger {
     return hasAllKeys(this.config, requiredConfig);
   }
 
-  ShouldLog(logLevel) {
-    return logLevel >= this.config.minLogLevel;
+  ShouldLog(level) {
+    return level >= this.config.logLevel;
   }
 
   // this function must be implemented by individual service
   /* eslint-disable */
-  Log(logLevel, logMessage, label) {
+  Log(level, message, label) {
     throw new Error('not implemented');
   }
   /* eslint-enable */

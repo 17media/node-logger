@@ -7,8 +7,8 @@ import ChatFacet from '@slack/client/lib/clients/web/facets/chat';
 import SlackClient from '@slack/client';
 
 import { LogMessage } from '../../lib/message';
-import { SlackLogger } from '../../lib/service';
-import LOG_LEVEL from '../../lib/enum/logLevel';
+import { Slack } from '../../lib/service';
+import Level from '../../lib/enum/level';
 
 const { expect } = chai;
 
@@ -36,7 +36,7 @@ describe('service/fluentd', () => {
       slackChannel: 'cool channel',
     };
 
-    const logger = new SlackLogger(config);
+    const logger = new Slack(config);
 
     expect(logger.IsConfigValid()).to.equal(true);
   });
@@ -49,7 +49,7 @@ describe('service/fluentd', () => {
       slackChannel: 'cool channel',
     };
 
-    const logger = new SlackLogger(config);
+    const logger = new Slack(config);
 
     expect(logger.IsConfigValid()).to.equal(false);
   });
@@ -62,7 +62,7 @@ describe('service/fluentd', () => {
       slackToken: 'slack token',
     };
 
-    const logger = new SlackLogger(config);
+    const logger = new Slack(config);
 
     expect(logger.IsConfigValid()).to.equal(false);
   });
@@ -75,9 +75,9 @@ describe('service/fluentd', () => {
       slackChannel: 'cool channel',
     };
 
-    const logger = new SlackLogger(config);
+    const logger = new Slack(config);
 
-    logger.Log(LOG_LEVEL.ERROR, new LogMessage('something happened'), 'some:label');
+    logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
 
     expect(slackClient).to.have.been.calledOnce;
     expect(slackClient).to.have.been.calledWith(config.slackToken);

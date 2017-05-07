@@ -1,8 +1,8 @@
 import { isObject, isArray } from 'lodash';
 import * as services from './service';
-import LOG_LEVEL from './enum/logLevel';
+import Level from './enum/level';
 
-const { MIN_LOG_LEVEL } = process.env;
+const { LOG_LEVEL } = process.env;
 
 class MasterLogger {
   constructor(config) {
@@ -20,8 +20,8 @@ class MasterLogger {
         {},
         config.base,
         config[key],
-        // override minimum log level if specified by environment variable
-        MIN_LOG_LEVEL ? { minLogLevel: LOG_LEVEL[MIN_LOG_LEVEL] } : {}),
+        // override log level if specified by environment variable
+        LOG_LEVEL ? { logLevel: Level[LOG_LEVEL] } : {}),
     }))
     // create services from configs
     .map(({ key, serviceConfig }) => new services[key](serviceConfig))
@@ -32,16 +32,16 @@ class MasterLogger {
   // wrap Log function and reuse label
   Label(label) {
     return {
-      Log: (logLevel, logMessage) => this.Log(logLevel, logMessage, label),
+      Log: (level, message) => this.Log(level, message, label),
     };
   }
 
-  Log(logLevel, logMessage, label) {
+  Log(level, message, label) {
     const tasks = this.services
     // filter by log level
-    .filter(service => service.ShouldLog(logLevel))
+    .filter(service => service.ShouldLog(level))
     // initiate log service
-    .map(service => service.Log(logLevel, logMessage, label));
+    .map(service => service.Log(level, message, label));
 
     return Promise.all(tasks).catch(() => Promise.resolve());
   }

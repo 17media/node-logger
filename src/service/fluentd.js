@@ -13,18 +13,18 @@ class FluentdLogger extends Logger {
       hasAllKeys(this.config, requiredConfig);
   }
 
-  Log(logLevel, logMessage, label) {
+  Log(level, message, label) {
     const {
       project,
       environment,
       collectorUrl,
     } = this.config;
 
-    const fluentdObject = Object.assign({}, logMessage.toObject(), {
+    const fluentdObject = Object.assign({}, message.toObject(), {
       project,
       environment,
       label,
-      level: formatLogLevel(logLevel),
+      level: formatLogLevel(level),
       logTime: new Date().getTime(),
     });
 

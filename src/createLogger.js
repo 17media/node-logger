@@ -11,20 +11,20 @@ const createLogger = (config) => {
     const labelledLogger = internalLogger.Label(label);
 
     const logger = level => (...args) => {
-      let msg;
+      let message;
 
       if (args.length === 1 && isLogMessage(args[0])) {
         // custom extended log message
-        msg = args[0];
+        message = args[0];
       } else if (args.find(isError)) {
         // error message
-        msg = new ErrorMessage(...args);
+        message = new ErrorMessage(...args);
       } else {
         // regular log message
-        msg = new LogMessage(...args);
+        message = new LogMessage(...args);
       }
 
-      labelledLogger.Log(level, msg);
+      labelledLogger.Log(level, message);
     };
 
     Object.keys(methodAlias).forEach((method) => {

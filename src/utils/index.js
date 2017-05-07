@@ -33,7 +33,7 @@ const hasAllKeys = (testObject, keys) => {
   return keys.reduce((result, key) => result && has(testObject, key), true);
 };
 
-const formatLogLevel = logLevel => ['debug', 'info', 'warn', 'error'][logLevel];
+const formatLogLevel = level => ['debug', 'info', 'warn', 'error', 'fatal'][level];
 
 // check if testLogMessage implements all interfaces of LogMessage
 const isLogMessage = testLogMessage => !!testLogMessage

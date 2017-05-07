@@ -3,10 +3,10 @@ import Logger from './logger';
 import { formatLogLevel } from '../utils';
 
 class ConsoleLogger extends Logger {
-  Log(logLevel, logMessage, label) {
+  Log(level, message, label) {
     const { project } = this.config;
 
-    console.log(`[${formatLogLevel(logLevel)}]\n${project} - ${label}\n${logMessage.toString()}`);
+    console.log(`[${formatLogLevel(level)}]\n${project} - ${label}\n${message.toString()}`);
     return Promise.resolve();
   }
 }

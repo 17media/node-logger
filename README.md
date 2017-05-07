@@ -8,10 +8,9 @@ Centralized logger for 17.Media Node.JS projects
 
 ## Usage
 
-Provide configs to initiate the logger:<br>
-A log service will be used only when all corresponding configs are provided.
+First of all you have to set up your configs:
 ```js
-import { LOG_LEVEL, Logger } from '@17media/node-logger';
+import { Level } from '@17media/node-logger';
 
 const loggerConfig = {
   // configs shared by all log services
@@ -19,7 +18,7 @@ const loggerConfig = {
     // minimum level to trigger logger [ERROR|WARN|INFO|DEBUG]
     // levels lower than this will not be logged
     // it can be overridden in each service specific config
-    minLogLevel: LOG_LEVEL.INFO,
+    logLevel: Level.INFO,
 
     // project name, preferably 'name' from package.json
     project: require('~/package.json').name,
@@ -29,9 +28,9 @@ const loggerConfig = {
   },
 
   // configs for slack
-  SlackLogger: {
+  Slack: {
     // override minimum log level (optional)
-    minLogLevel: LOG_LEVEL.WARN,
+    logLevel: Level.WARN,
 
     // slack bot access token
     slackToken: SLACK_BOT_TOKEN,
@@ -41,21 +40,44 @@ const loggerConfig = {
   },
 
   // configs for log collecting service (fluentD)
-  FluentdLogger: {
+  Fluentd: {
     // override minimum log level (optional)
-    minLogLevel: LOG_LEVEL.INFO,
+    logLevel: Level.INFO,
 
     // log collector URL
     collectorUrl: LOG_COLLECTOR_URL,
   },
 
   // configs for logging to console
-  ConsoleLogger: {
+  Console: {
     // override minimum log level (optional)
-    minLogLevel: LOG_LEVEL.ERROR,
+    logLevel: Level.ERROR,
   },
 };
+```
 
+Then, there are two ways to continue, **the easy way** and **the complete way**:
+
+### Easy Way
+
+This is the simple way and should cover ~90% of the use cases.
+```js
+const logger = require('@17media/node-logger').CreateLogger(config);
+const labelledLogger = logger('some:label');
+
+labelledLogger.debug('track the variable value during development', { info });
+labelledLogger.info('somehing worth logging for future reference', { additionalInfo });
+labelledLogger.warn('somehing worth notice', { additionalInfo });
+labelledLogger.error('somehing terrible happened', new Error());
+labelledLogger.fatal('somehing disastrous happened', new Error(), { additionalInfo });
+```
+
+### Complete Way
+
+Provide configs to initiate the logger:<br>
+A log service will be used only when all corresponding configs are provided.
+```js
+import { Logger } from '@17media/node-logger';
 const logger = new Logger(loggerConfig);
 ```
 
@@ -64,7 +86,7 @@ Use the logger like:
 import { LogMessage } from '@17media/node-logger';
 
 logger.Log(
-  LOG_LEVEL.WARN,
+  Level.WARN,
   new LogMessage('something happened', { additionalInfo }),
   'some:label:for:the:message'
 );
@@ -76,7 +98,9 @@ You can do it by:
 const labelledLogger = logger.Label('path:to:this:file');
 
 labelledLogger.Log(
-  LOG_LEVEL.WARN,
+  Level.WARN,
   new LogMessage('something happened', { additionalInfo })
 );
 ```
+
+You can extend `LogMessage` and `ErrorMessage` to create customized formatting for your context.
