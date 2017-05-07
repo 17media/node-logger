@@ -21,7 +21,7 @@ describe('service/console', () => {
     console.log.restore();
   });
 
-  it('should log to console', (done) => {
+  it('should log to console', () => {
     const config = {
       project: 'cool project',
       environment: 'production',
@@ -29,9 +29,9 @@ describe('service/console', () => {
 
     const logger = new ConsoleLogger(config);
 
-    logger.Log(LOG_LEVEL.ERROR, new LogMessage('something happened'), 'some:label')
-      .then(expect(console.log).to.have.been.calledOnce)
-      .then(done);
+    logger.Log(LOG_LEVEL.ERROR, new LogMessage('something happened'), 'some:label');
+
+    expect(console.log).to.have.been.calledOnce;
   });
 });
 /* eslint-enable no-console, no-unused-expressions */
