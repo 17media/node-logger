@@ -62,14 +62,13 @@ Then, there are two ways to continue, **the easy way** and **the complete way**:
 
 This is the simple way and should cover ~90% of the use cases.
 ```js
-const logger = require('@17media/node-logger').CreateLogger(config);
-const labelledLogger = logger('some:label');
+const logger = require('@17media/node-logger').CreateLogger(config)('some:label');
 
-labelledLogger.debug('track the variable value during development', { info });
-labelledLogger.info('somehing worth logging for future reference', { additionalInfo });
-labelledLogger.warn('somehing worth notice', { additionalInfo });
-labelledLogger.error('somehing terrible happened', new Error());
-labelledLogger.fatal('somehing disastrous happened', new Error(), { additionalInfo });
+logger.debug('track the variable value during development', { info });
+logger.info('somehing worth logging for future reference', { additionalInfo });
+logger.warn('somehing worth notice', { additionalInfo });
+logger.error('somehing terrible happened', new Error());
+logger.fatal('somehing disastrous happened', new Error(), { additionalInfo });
 ```
 
 ### Complete Way
