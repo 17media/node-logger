@@ -1,9 +1,9 @@
-import SlackLogger from './slack';
-import FluentdLogger from './fluentd';
-import ConsoleLogger from './console';
+import Slack from './slack';
+import Fluentd from './fluentd';
+import Console from './console';
 
 export {
-  SlackLogger,
-  FluentdLogger,
-  ConsoleLogger,
+  Slack,
+  Fluentd,
+  Console,
 };

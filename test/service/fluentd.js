@@ -6,8 +6,8 @@ import chai from 'chai';
 import superagent from 'superagent';
 
 import { LogMessage } from '../../lib/message';
-import { FluentdLogger } from '../../lib/service';
-import LOG_LEVEL from '../../lib/enum/logLevel';
+import { Fluentd } from '../../lib/service';
+import Level from '../../lib/enum/level';
 
 const { expect } = chai;
 
@@ -37,7 +37,7 @@ describe('service/fluentd', () => {
       collectorUrl: 'some URL',
     };
 
-    const logger = new FluentdLogger(config);
+    const logger = new Fluentd(config);
 
     expect(logger.IsConfigValid()).to.equal(true);
   });
@@ -49,7 +49,7 @@ describe('service/fluentd', () => {
       environment: 'production',
     };
 
-    const logger = new FluentdLogger(config);
+    const logger = new Fluentd(config);
 
     expect(logger.IsConfigValid()).to.equal(false);
   });
@@ -61,9 +61,9 @@ describe('service/fluentd', () => {
       collectorUrl: 'some URL',
     };
 
-    const logger = new FluentdLogger(config);
+    const logger = new Fluentd(config);
 
-    logger.Log(LOG_LEVEL.ERROR, new LogMessage('something happened'), 'some:label');
+    logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
 
     expect(postRequest).to.have.been.calledOnce;
     expect(postRequest).to.have.been.calledWith(config.collectorUrl);

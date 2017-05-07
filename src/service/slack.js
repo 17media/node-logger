@@ -9,7 +9,7 @@ const requiredConfig = [
 ];
 
 function formatLogLevelSlackColor(logLevel) {
-  return ['good', 'good', 'warning', 'danger'][logLevel];
+  return ['good', 'good', 'warning', 'danger', 'danger'][logLevel];
 }
 
 class SlackLogger extends Logger {
@@ -18,7 +18,7 @@ class SlackLogger extends Logger {
       hasAllKeys(this.config, requiredConfig);
   }
 
-  Log(logLevel, logMessage, label) {
+  Log(level, message, label) {
     if (!this.slackClient) {
       this.slackClient = new SlackClient.WebClient(this.config.slackToken);
     }
@@ -29,13 +29,13 @@ class SlackLogger extends Logger {
       slackChannel,
     } = this.config;
 
-    const logMessageFields = logMessage.toObject();
+    const logMessageFields = message.toObject();
     const messageOpts = {
       as_user: true,
       attachments: [
         {
-          color: formatLogLevelSlackColor(logLevel),
-          title: `[${formatLogLevel(logLevel).toUpperCase()}] ${logMessage.get('message')}`,
+          color: formatLogLevelSlackColor(level),
+          title: `[${formatLogLevel(level).toUpperCase()}] ${message.get('message')}`,
           fields: Object.keys(logMessageFields)
             .filter(key => !(key === 'message'))
             .map(key => ({

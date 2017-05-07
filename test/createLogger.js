@@ -5,8 +5,8 @@ import sinonChai from 'sinon-chai';
 import chai from 'chai';
 
 import { LogMessage, ErrorMessage } from '../lib/message';
-import { SlackLogger, FluentdLogger, ConsoleLogger } from '../lib/service';
-import LOG_LEVEL from '../lib/enum/logLevel';
+import { Slack, Fluentd, Console } from '../lib/service';
+import Level from '../lib/enum/level';
 import Logger from '../lib/logger';
 import createLogger from '../lib/createLogger';
 
@@ -19,17 +19,17 @@ describe('createLogger', () => {
   const label = 'some:label';
   const config = {
     base: {
-      minLogLevel: LOG_LEVEL.INFO,
+      logLevel: Level.INFO,
       project: 'cool project',
       environment: 'production',
     },
-    SlackLogger: {
-      minLogLevel: LOG_LEVEL.ERROR,
+    Slack: {
+      logLevel: Level.ERROR,
       slackToken: 'token',
       slackChannel: 'slack channel',
     },
-    ConsoleLogger: true,
-    FluentdLogger: {
+    Console: true,
+    Fluentd: {
       collectorUrl: 'collector URL',
     },
   };
@@ -44,9 +44,9 @@ describe('createLogger', () => {
   });
 
   it('should initiate logger and pass through configs', () => {
-    const slackConfigCheck = sinon.spy(SlackLogger.prototype, 'IsConfigValid');
-    const fluentdConfigCheck = sinon.spy(FluentdLogger.prototype, 'IsConfigValid');
-    const consoleConfigCheck = sinon.spy(ConsoleLogger.prototype, 'IsConfigValid');
+    const slackConfigCheck = sinon.spy(Slack.prototype, 'IsConfigValid');
+    const fluentdConfigCheck = sinon.spy(Fluentd.prototype, 'IsConfigValid');
+    const consoleConfigCheck = sinon.spy(Console.prototype, 'IsConfigValid');
 
     createLogger(config);
 
@@ -62,10 +62,10 @@ describe('createLogger', () => {
   it('should preset label for future logs', () => {
     const logMessage = new LogMessage(message);
 
-    createLogger(config)(label)(LOG_LEVEL.INFO)(logMessage);
+    createLogger(config)(label)(Level.INFO)(logMessage);
 
     expect(masterLog).to.have.been.calledOnce;
-    expect(masterLog).to.have.been.calledWith(LOG_LEVEL.INFO, logMessage, label);
+    expect(masterLog).to.have.been.calledWith(Level.INFO, logMessage, label);
   });
 
   it('should create log message implicitly (message)', () => {
@@ -74,7 +74,7 @@ describe('createLogger', () => {
     createLogger(config)(label).debug(message);
 
     expect(masterLog).to.have.been.calledOnce;
-    expect(masterLog).to.have.been.calledWith(LOG_LEVEL.DEBUG, logMessage, label);
+    expect(masterLog).to.have.been.calledWith(Level.DEBUG, logMessage, label);
   });
 
   it('should create log message implicitly (message + info)', () => {
@@ -84,7 +84,7 @@ describe('createLogger', () => {
     createLogger(config)(label).debug(message, additionalInfo);
 
     expect(masterLog).to.have.been.calledOnce;
-    expect(masterLog).to.have.been.calledWith(LOG_LEVEL.DEBUG, logMessage, label);
+    expect(masterLog).to.have.been.calledWith(Level.DEBUG, logMessage, label);
   });
 
   it('should create error message implicitly (message + error)', () => {
@@ -94,7 +94,7 @@ describe('createLogger', () => {
     createLogger(config)(label).debug(message, error);
 
     expect(masterLog).to.have.been.calledOnce;
-    expect(masterLog).to.have.been.calledWith(LOG_LEVEL.DEBUG, errorMessage, label);
+    expect(masterLog).to.have.been.calledWith(Level.DEBUG, errorMessage, label);
   });
 
   it('should create error message implicitly (message + error + info)', () => {
@@ -105,38 +105,45 @@ describe('createLogger', () => {
     createLogger(config)(label).debug(message, error, additionalInfo);
 
     expect(masterLog).to.have.been.calledOnce;
-    expect(masterLog).to.have.been.calledWith(LOG_LEVEL.DEBUG, errorMessage, label);
+    expect(masterLog).to.have.been.calledWith(Level.DEBUG, errorMessage, label);
   });
 
   describe('method alias', () => {
     const logMessage = new LogMessage(message);
 
+    it('should log with FATAL when .fatal() is called', () => {
+      createLogger(config)(label).fatal(logMessage);
+
+      expect(masterLog).to.have.been.calledOnce;
+      expect(masterLog).to.have.been.calledWith(Level.FATAL, logMessage, label);
+    });
+
     it('should log with ERROR when .error() is called', () => {
       createLogger(config)(label).error(logMessage);
 
       expect(masterLog).to.have.been.calledOnce;
-      expect(masterLog).to.have.been.calledWith(LOG_LEVEL.ERROR, logMessage, label);
+      expect(masterLog).to.have.been.calledWith(Level.ERROR, logMessage, label);
     });
 
     it('should log with WARN when .warn() is called', () => {
       createLogger(config)(label).warn(logMessage);
 
       expect(masterLog).to.have.been.calledOnce;
-      expect(masterLog).to.have.been.calledWith(LOG_LEVEL.WARN, logMessage, label);
+      expect(masterLog).to.have.been.calledWith(Level.WARN, logMessage, label);
     });
 
     it('should log with INFO when .info() is called', () => {
       createLogger(config)(label).info(logMessage);
 
       expect(masterLog).to.have.been.calledOnce;
-      expect(masterLog).to.have.been.calledWith(LOG_LEVEL.INFO, logMessage, label);
+      expect(masterLog).to.have.been.calledWith(Level.INFO, logMessage, label);
     });
 
     it('should log with DEBUG when .debug() is called', () => {
       createLogger(config)(label).debug(logMessage);
 
       expect(masterLog).to.have.been.calledOnce;
-      expect(masterLog).to.have.been.calledWith(LOG_LEVEL.DEBUG, logMessage, label);
+      expect(masterLog).to.have.been.calledWith(Level.DEBUG, logMessage, label);
     });
   });
 });
