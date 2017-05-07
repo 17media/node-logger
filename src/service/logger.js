@@ -26,8 +26,11 @@ class Logger {
   }
 
   // this function must be implemented by individual service
-  // Log(logLevel, logMessage, label) {
-  // }
+  /* eslint-disable */
+  Log(logLevel, logMessage, label) {
+    throw new Error('not implemented');
+  }
+  /* eslint-enable */
 }
 
 export default Logger;
