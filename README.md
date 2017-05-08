@@ -76,13 +76,13 @@ logger.fatal('somehing disastrous happened', new Error(), { additionalInfo });
 Provide configs to initiate the logger:<br>
 A log service will be used only when all corresponding configs are provided.
 ```js
-import { Logger } from '@17media/node-logger';
+const { Logger } = require('@17media/node-logger');
 const logger = new Logger(loggerConfig);
 ```
 
 Use the logger like:
 ```js
-import { LogMessage } from '@17media/node-logger';
+const { LogMessage } = require('@17media/node-logger');
 
 logger.Log(
   Level.WARN,
