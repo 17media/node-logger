@@ -1,7 +1,6 @@
 module.exports = {
-  "extends": "airbnb-base",
+  "extends": "@17media/eslint-config-17media/node",
   "plugins": [
-    "import",
     "chai-expect"
   ],
   "rules": {

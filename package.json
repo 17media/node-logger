@@ -29,15 +29,17 @@
     "superagent": "^3.5.2"
   },
   "devDependencies": {
+    "@17media/eslint-config-17media": "^1.0.0",
     "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",
+    "babel-eslint": "^7.2.3",
     "babel-preset-env": "^1.4.0",
     "chai": "^3.5.0",
     "deep-freeze": "0.0.1",
     "eslint": "^3.19.0",
-    "eslint-config-airbnb-base": "^11.1.3",
     "eslint-plugin-chai-expect": "^1.1.1",
     "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-react": "^6.10.3",
     "mocha": "^3.3.0",
     "sinon": "^2.2.0",
     "sinon-chai": "^2.10.0"
