@@ -4,8 +4,10 @@
   "description": "Centralized logger for 17.Media Node.JS projects",
   "main": "lib/index.js",
   "scripts": {
-    "build": "babel src -d lib",
-    "test": "mocha --compilers js:babel-core/register ./test",
+    "build": "babel src -d lib --ignore __tests__",
+    "build:watch": "npm run build -- --watch",
+    "test": "jest",
+    "test:watch": "npm test -- --watch",
     "lint": "eslint ."
   },
   "repository": {
@@ -33,15 +35,13 @@
     "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.3",
+    "babel-jest": "^20.0.0",
     "babel-preset-env": "^1.4.0",
-    "chai": "^3.5.0",
     "deep-freeze": "0.0.1",
     "eslint": "^3.19.0",
     "eslint-plugin-chai-expect": "^1.1.1",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-react": "^6.10.3",
-    "mocha": "^3.3.0",
-    "sinon": "^2.2.0",
-    "sinon-chai": "^2.10.0"
+    "jest": "^20.0.0"
   }
 }

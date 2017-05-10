@@ -1,16 +1,14 @@
-/* eslint-env node, mocha */
-import { expect } from 'chai';
 import deepFreeze from 'deep-freeze';
-import { LogMessage } from '../../lib/message';
+import { LogMessage } from '../';
 
 describe('message/logMessage', () => {
   it('should construct log message without optional fields', () => {
     const message = 'something happened';
     const logMessage = new LogMessage(message);
 
-    expect(logMessage.get('message')).to.equal(message);
-    expect(logMessage.toString()).to.equal(message);
-    expect(logMessage.toObject()).to.deep.equal({ message });
+    expect(logMessage.get('message')).toBe(message);
+    expect(logMessage.toString()).toBe(message);
+    expect(logMessage.toObject()).toEqual({ message });
   });
 
   it('should construct log message with optional fields', () => {
@@ -24,9 +22,9 @@ describe('message/logMessage', () => {
 
     const logMessage = new LogMessage(message, optionalFields);
 
-    expect(logMessage.get('message')).to.equal(message);
-    expect(logMessage.toString()).to.equal(message);
-    expect(logMessage.toObject()).to.deep.equal(expectedObject);
+    expect(logMessage.get('message')).toBe(message);
+    expect(logMessage.toString()).toBe(message);
+    expect(logMessage.toObject()).toEqual(expectedObject);
   });
 
   it('should construct log message with primitive type optional field', () => {
@@ -34,9 +32,9 @@ describe('message/logMessage', () => {
     const logMessage = new LogMessage(message, 'wow');
     const expectedObject = Object.assign({ message }, { value: 'wow' });
 
-    expect(logMessage.get('message')).to.equal(message);
-    expect(logMessage.toString()).to.equal(message);
-    expect(logMessage.toObject()).to.deep.equal(expectedObject);
+    expect(logMessage.get('message')).toBe(message);
+    expect(logMessage.toString()).toBe(message);
+    expect(logMessage.toObject()).toEqual(expectedObject);
   });
 
   it('should not expose internal object', () => {
@@ -56,8 +54,8 @@ describe('message/logMessage', () => {
 
     const expectedObject = Object.assign({ message }, optionalFields);
 
-    expect(logMessage.get('key1')).to.equal(optionalFields.key1);
-    expect(logMessage.toString()).to.equal(message);
-    expect(logMessage.toObject()).to.deep.equal(expectedObject);
+    expect(logMessage.get('key1')).toBe(optionalFields.key1);
+    expect(logMessage.toString()).toBe(message);
+    expect(logMessage.toObject()).toEqual(expectedObject);
   });
 });

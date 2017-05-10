@@ -1,31 +1,24 @@
-/* eslint-env node, mocha */
-/* eslint-disable no-unused-expressions */
-import sinon from 'sinon';
-import sinonChai from 'sinon-chai';
-import chai from 'chai';
-import ChatFacet from '@slack/client/lib/clients/web/facets/chat';
 import SlackClient from '@slack/client';
 
-import { LogMessage } from '../../lib/message';
-import { Slack } from '../../lib/service';
-import Level from '../../lib/enum/level';
-
-const { expect } = chai;
-
-chai.use(sinonChai);
+import { LogMessage } from '../../message';
+import { Slack } from '../';
+import Level from '../../enum/level';
 
 describe('service/fluentd', () => {
-  let postRequest;
-  let slackClient;
+  const originalSlackClientWebClient = SlackClient.WebClient;
+  let postMessage;
 
   beforeEach(() => {
-    slackClient = sinon.spy(SlackClient, 'WebClient');
-    postRequest = sinon.stub(ChatFacet.prototype, 'postMessage').returns(Promise.resolve());
+    postMessage = jest.fn(() => Promise.resolve());
+    SlackClient.WebClient = jest.fn(() => ({
+      chat: {
+        postMessage,
+      },
+    }));
   });
 
-  afterEach(() => {
-    slackClient.restore();
-    postRequest.restore();
+  afterAll(() => {
+    SlackClient.WebClient = originalSlackClientWebClient;
   });
 
   it('should check for slack token and channel in config', () => {
@@ -38,7 +31,7 @@ describe('service/fluentd', () => {
 
     const logger = new Slack(config);
 
-    expect(logger.IsConfigValid()).to.equal(true);
+    expect(logger.IsConfigValid()).toBe(true);
   });
 
   it('should detect missing slack token in config', () => {
@@ -51,7 +44,7 @@ describe('service/fluentd', () => {
 
     const logger = new Slack(config);
 
-    expect(logger.IsConfigValid()).to.equal(false);
+    expect(logger.IsConfigValid()).toBe(false);
   });
 
   it('should detect missing slack channel in config', () => {
@@ -64,7 +57,7 @@ describe('service/fluentd', () => {
 
     const logger = new Slack(config);
 
-    expect(logger.IsConfigValid()).to.equal(false);
+    expect(logger.IsConfigValid()).toBe(false);
   });
 
   it('should send log request to collector', () => {
@@ -79,9 +72,8 @@ describe('service/fluentd', () => {
 
     logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
 
-    expect(slackClient).to.have.been.calledOnce;
-    expect(slackClient).to.have.been.calledWith(config.slackToken);
-    expect(postRequest).to.have.been.calledOnce;
+    expect(SlackClient.WebClient).toHaveBeenCalledTimes(1);
+    expect(SlackClient.WebClient).toHaveBeenCalledWith(config.slackToken);
+    expect(postMessage).toHaveBeenCalledTimes(1);
   });
 });
-/* eslint-enable no-unused-expressions */

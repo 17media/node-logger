@@ -1,15 +1,13 @@
-/* eslint-env node, mocha */
-import { expect } from 'chai';
 import deepFreeze from 'deep-freeze';
-import { hasAllKeys } from '../../lib/utils';
+import { hasAllKeys } from '../';
 
 describe('utils/hasAllKeys', () => {
   it('should check input types', () => {
-    expect(hasAllKeys('key', ['key'])).to.equal(false);
-    expect(hasAllKeys({ key: 'value' }, 'key')).to.equal(false);
-    expect(hasAllKeys(null, null)).to.equal(false);
-    expect(hasAllKeys(0, 0)).to.equal(false);
-    expect(hasAllKeys('key', 'key')).to.equal(false);
+    expect(hasAllKeys('key', ['key'])).toBe(false);
+    expect(hasAllKeys({ key: 'value' }, 'key')).toBe(false);
+    expect(hasAllKeys(null, null)).toBe(false);
+    expect(hasAllKeys(0, 0)).toBe(false);
+    expect(hasAllKeys('key', 'key')).toBe(false);
   });
 
   it('should return true if all keys are provided', () => {
@@ -24,7 +22,7 @@ describe('utils/hasAllKeys', () => {
     deepFreeze(testObject);
     deepFreeze(requiredKeys);
 
-    expect(hasAllKeys(testObject, requiredKeys)).to.equal(true);
+    expect(hasAllKeys(testObject, requiredKeys)).toBe(true);
   });
 
   it('should return true if nothing is required', () => {
@@ -39,7 +37,7 @@ describe('utils/hasAllKeys', () => {
     deepFreeze(testObject);
     deepFreeze(requiredKeys);
 
-    expect(hasAllKeys(testObject, requiredKeys)).to.equal(true);
+    expect(hasAllKeys(testObject, requiredKeys)).toBe(true);
   });
 
   it('should return false if some keys are missing', () => {
@@ -54,7 +52,7 @@ describe('utils/hasAllKeys', () => {
     deepFreeze(testObject);
     deepFreeze(requiredKeys);
 
-    expect(hasAllKeys(testObject, requiredKeys)).to.equal(false);
+    expect(hasAllKeys(testObject, requiredKeys)).toBe(false);
   });
 });
 

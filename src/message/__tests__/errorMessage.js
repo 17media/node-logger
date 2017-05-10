@@ -1,6 +1,4 @@
-/* eslint-env node, mocha */
-import { expect } from 'chai';
-import { ErrorMessage } from '../../lib/message';
+import { ErrorMessage } from '../';
 
 describe('message/errorMessage', () => {
   it('should construct error message with Error-typed object', () => {
@@ -14,9 +12,9 @@ describe('message/errorMessage', () => {
       stackTrace: error.stack,
     });
 
-    expect(logMessage.get('message')).to.equal(message);
-    expect(logMessage.toString()).to.equal(`${message}\n${error.stack}`);
-    expect(logMessage.toObject()).to.deep.equal(expectedObject);
+    expect(logMessage.get('message')).toBe(message);
+    expect(logMessage.toString()).toBe(`${message}\n${error.stack}`);
+    expect(logMessage.toObject()).toEqual(expectedObject);
   });
 
   it('should construct error message with non-Error-typed object', () => {
@@ -25,8 +23,8 @@ describe('message/errorMessage', () => {
 
     const logMessage = new ErrorMessage(message, error);
 
-    expect(logMessage.get('message')).to.equal(message);
-    expect(logMessage.toObject().error).to.not.equal(null);
-    expect(logMessage.toObject().errorStack).to.not.equal(null);
+    expect(logMessage.get('message')).toBe(message);
+    expect(logMessage.toObject().error).not.toBe(null);
+    expect(logMessage.toObject().errorStack).not.toBe(null);
   });
 });
