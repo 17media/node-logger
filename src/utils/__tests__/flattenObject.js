@@ -1,14 +1,12 @@
-/* eslint-env node, mocha */
-import { expect } from 'chai';
 import deepFreeze from 'deep-freeze';
-import { flattenObject } from '../../lib/utils';
+import { flattenObject } from '../';
 
 describe('utils/flattenObject', () => {
   it('should return simple object for primitive types', () => {
-    expect(flattenObject(10)).to.deep.equal({ value: 10 });
-    expect(flattenObject('hsuan')).to.deep.equal({ value: 'hsuan' });
-    expect(flattenObject(true)).to.deep.equal({ value: true });
-    expect(flattenObject(null)).to.deep.equal({ value: null });
+    expect(flattenObject(10)).toEqual({ value: 10 });
+    expect(flattenObject('hsuan')).toEqual({ value: 'hsuan' });
+    expect(flattenObject(true)).toEqual({ value: true });
+    expect(flattenObject(null)).toEqual({ value: null });
   });
 
   it('should not affect single-level objects', () => {
@@ -22,7 +20,7 @@ describe('utils/flattenObject', () => {
     // should not modify object itself
     deepFreeze(testObject);
 
-    expect(flattenObject(testObject)).to.deep.equal(testObject);
+    expect(flattenObject(testObject)).toEqual(testObject);
   });
 
   it('should flatten multi-level objects', () => {
@@ -47,7 +45,7 @@ describe('utils/flattenObject', () => {
       'key3.key2': 32,
     };
 
-    expect(flattenObject(testObject)).to.deep.equal(expected);
+    expect(flattenObject(testObject)).toEqual(expected);
   });
 
   it('should remove circular references', () => {
@@ -80,6 +78,6 @@ describe('utils/flattenObject', () => {
       'obj1.obj2.deeper.obj1': '[Circular Reference]',
     };
 
-    expect(flattenObject(testObject)).to.deep.equal(expected);
+    expect(flattenObject(testObject)).toEqual(expected);
   });
 });

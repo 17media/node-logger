@@ -1,7 +1,5 @@
-/* eslint-env node, mocha */
-import { expect } from 'chai';
-import Logger from '../../lib/service/logger';
-import Level from '../../lib/enum/level';
+import Logger from '../logger';
+import Level from '../../enum/level';
 
 describe('service/logger', () => {
   it('should construct logger and check configs', () => {
@@ -13,7 +11,7 @@ describe('service/logger', () => {
 
     const logger = new Logger(config);
 
-    expect(logger.IsConfigValid()).to.equal(true);
+    expect(logger.IsConfigValid()).toBe(true);
   });
 
   it('should construct logger and detect invalid configs', () => {
@@ -25,7 +23,7 @@ describe('service/logger', () => {
 
     const logger = new Logger(config);
 
-    expect(logger.IsConfigValid()).to.equal(false);
+    expect(logger.IsConfigValid()).toBe(false);
   });
 
   it('should detemine if logger should log depending on the configs provided', () => {
@@ -37,11 +35,11 @@ describe('service/logger', () => {
 
     const logger = new Logger(config);
 
-    expect(logger.ShouldLog(Level.FATAL)).to.equal(true);
-    expect(logger.ShouldLog(Level.ERROR)).to.equal(true);
-    expect(logger.ShouldLog(Level.WARN)).to.equal(false);
-    expect(logger.ShouldLog(Level.INFO)).to.equal(false);
-    expect(logger.ShouldLog(Level.DEBUG)).to.equal(false);
+    expect(logger.ShouldLog(Level.FATAL)).toBe(true);
+    expect(logger.ShouldLog(Level.ERROR)).toBe(true);
+    expect(logger.ShouldLog(Level.WARN)).toBe(false);
+    expect(logger.ShouldLog(Level.INFO)).toBe(false);
+    expect(logger.ShouldLog(Level.DEBUG)).toBe(false);
   });
 
   it('should use default log level when log level is not provided in config', () => {
@@ -54,11 +52,11 @@ describe('service/logger', () => {
     // should default to 'INFO'
     const logger = new Logger(config);
 
-    expect(logger.IsConfigValid()).to.equal(true);
-    expect(logger.ShouldLog(Level.FATAL)).to.equal(true);
-    expect(logger.ShouldLog(Level.ERROR)).to.equal(true);
-    expect(logger.ShouldLog(Level.WARN)).to.equal(true);
-    expect(logger.ShouldLog(Level.INFO)).to.equal(true);
-    expect(logger.ShouldLog(Level.DEBUG)).to.equal(false);
+    expect(logger.IsConfigValid()).toBe(true);
+    expect(logger.ShouldLog(Level.FATAL)).toBe(true);
+    expect(logger.ShouldLog(Level.ERROR)).toBe(true);
+    expect(logger.ShouldLog(Level.WARN)).toBe(true);
+    expect(logger.ShouldLog(Level.INFO)).toBe(true);
+    expect(logger.ShouldLog(Level.DEBUG)).toBe(false);
   });
 });
