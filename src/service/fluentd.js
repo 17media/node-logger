@@ -28,10 +28,16 @@ class FluentdLogger extends Logger {
       logTime: new Date().getTime(),
     });
 
+    const fluentdProcessed = Object.keys(fluentdObject)
+      .reduce((currentObject, nextKey) => (
+        Object.assign({}, currentObject, {
+          [nextKey.replace(/\./g, '_')]: fluentdObject[nextKey],
+        })), {});
+
     return new Promise((resolve) => {
       request
       .post(collectorUrl)
-      .send(JSON.stringify(fluentdObject))
+      .send(JSON.stringify(fluentdProcessed))
       .end(() => resolve());
     });
   }
