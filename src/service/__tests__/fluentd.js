@@ -63,7 +63,7 @@ describe('service/fluentd', () => {
     expect(endRequest).toHaveBeenCalledTimes(1);
   });
 
-  it('should process object keys', () => {
+  it('should replce . with _ in object keys', () => {
     const config = {
       project: 'cool project',
       environment: 'production',
@@ -71,6 +71,7 @@ describe('service/fluentd', () => {
     };
     const additionalInfo = {
       'object.key.key2': 'value',
+      key_not_affected: 'value2',
     };
 
     const logger = new Fluentd(config);
@@ -82,6 +83,7 @@ describe('service/fluentd', () => {
     expect(sendRequest).toHaveBeenCalledTimes(1);
     expect(sendRequest).toHaveBeenCalledWith(expect.any(String));
     expect(sendRequest).toHaveBeenCalledWith(expect.stringMatching(/"object_key_key2":"value"/g));
+    expect(sendRequest).toHaveBeenCalledWith(expect.stringMatching(/"key_not_affected":"value2"/g));
     expect(endRequest).toHaveBeenCalledTimes(1);
   });
 });
