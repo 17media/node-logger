@@ -62,4 +62,26 @@ describe('service/fluentd', () => {
     expect(sendRequest).toHaveBeenCalledTimes(1);
     expect(endRequest).toHaveBeenCalledTimes(1);
   });
+
+  it('should process object keys', () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+      collectorUrl: 'some URL',
+    };
+    const additionalInfo = {
+      'object.key.key2': 'value',
+    };
+
+    const logger = new Fluentd(config);
+
+    logger.Log(Level.ERROR, new LogMessage('something happened', additionalInfo), 'some:label');
+
+    expect(superagent.post).toHaveBeenCalledTimes(1);
+    expect(superagent.post).toHaveBeenCalledWith(config.collectorUrl);
+    expect(sendRequest).toHaveBeenCalledTimes(1);
+    expect(sendRequest).toHaveBeenCalledWith(expect.any(String));
+    expect(sendRequest).toHaveBeenCalledWith(expect.stringMatching(/"object_key_key2":"value"/g));
+    expect(endRequest).toHaveBeenCalledTimes(1);
+  });
 });
