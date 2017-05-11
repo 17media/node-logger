@@ -28,6 +28,7 @@ class FluentdLogger extends Logger {
       logTime: new Date().getTime(),
     });
 
+    // replace . with _ in keys because fluentd does not accept .
     Object.keys(fluentdObject)
       .forEach((key) => {
         const newKey = key.replace(/\./g, '_');
