@@ -70,10 +70,48 @@ describe('service/fluentd', () => {
 
     const logger = new Slack(config);
 
-    logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+    logger.Log(Level.ERROR, new LogMessage('something happened', { key: 'value' }), 'some:label');
 
     expect(SlackClient.WebClient).toHaveBeenCalledTimes(1);
     expect(SlackClient.WebClient).toHaveBeenCalledWith(config.slackToken);
     expect(postMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it('should reuse created web client', () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+      slackToken: 'slack token',
+      slackChannel: 'cool channel',
+    };
+
+    const logger = new Slack(config);
+
+    logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+    logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+
+    expect(SlackClient.WebClient).toHaveBeenCalledTimes(1);
+    expect(SlackClient.WebClient).toHaveBeenCalledWith(config.slackToken);
+    expect(postMessage).toHaveBeenCalledTimes(2);
+  });
+
+  it('should not expose internal service error', () => {
+    postMessage = jest.fn(() => Promise.reject(new Error()));
+
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+      slackToken: 'slack token',
+      slackChannel: 'cool channel',
+    };
+
+    const logger = new Slack(config);
+
+    return logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label')
+      .then(() => {
+        expect(SlackClient.WebClient).toHaveBeenCalledTimes(1);
+        expect(SlackClient.WebClient).toHaveBeenCalledWith(config.slackToken);
+        expect(postMessage).toHaveBeenCalledTimes(1);
+      });
   });
 });

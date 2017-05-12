@@ -86,4 +86,24 @@ describe('service/fluentd', () => {
     expect(sendRequest).toHaveBeenCalledWith(expect.stringMatching(/"key_not_affected":"value2"/g));
     expect(endRequest).toHaveBeenCalledTimes(1);
   });
+
+  it('should not expose internal service error', () => {
+    endRequest = jest.fn(callback => callback(new Error()));
+
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+      collectorUrl: 'some URL',
+    };
+
+    const logger = new Fluentd(config);
+
+    return logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label')
+      .then(() => {
+        expect(superagent.post).toHaveBeenCalledTimes(1);
+        expect(superagent.post).toHaveBeenCalledWith(config.collectorUrl);
+        expect(sendRequest).toHaveBeenCalledTimes(1);
+        expect(endRequest).toHaveBeenCalledTimes(1);
+      });
+  });
 });
