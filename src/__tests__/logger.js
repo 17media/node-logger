@@ -158,5 +158,27 @@ describe('logger', () => {
       expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
       expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
     });
+
+    it('should wait for logger to finish in promise', (done) => {
+      // delay log services
+      const delay = new Promise(resolve => setTimeout(resolve, 1000));
+      const logFinished = jest.fn(() => Promise.resolve());
+      Slack.prototype.Log = jest.fn(() => delay.then(logFinished));
+      Fluentd.prototype.Log = jest.fn(() => delay.then(logFinished));
+      Console.prototype.Log = jest.fn(() => delay.then(logFinished));
+
+      const logger = new Logger(config).Label(label);
+
+      logger.Log(Level.WARN, new LogMessage(message))
+        .then(() => {
+          expect(Slack.prototype.Log).not.toHaveBeenCalled();
+          expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
+          expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
+          expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
+          expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
+          expect(logFinished).toHaveBeenCalledTimes(2);
+          done();
+        });
+    });
   });
 });
