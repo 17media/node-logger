@@ -8,7 +8,7 @@ const flattenObject = (source, prefix = '', refSet = new Set()) => {
 
   // check for circular reference
   if (refSet.has(source)) {
-    return { [prefix || 'value']: '[Circular Reference]' };
+    return { [prefix]: '[Circular Reference]' };
   }
   refSet.add(source);
 
