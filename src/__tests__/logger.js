@@ -1,9 +1,7 @@
 import { LogMessage } from '../message';
-import * as services from '../service';
+import { Slack, Fluentd, Console } from '../service';
 import Level from '../enum/level';
 import Logger from '../logger';
-
-const { Slack, Fluentd, Console } = services;
 
 describe('logger', () => {
   describe('config', () => {

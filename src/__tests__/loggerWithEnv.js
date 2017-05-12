@@ -1,7 +1,7 @@
 import * as services from '../service';
 import Level from '../enum/level';
 
-describe('logger', () => {
+describe('logger with process.env override', () => {
   let Logger;
 
   beforeAll(() => {
@@ -13,7 +13,7 @@ describe('logger', () => {
     delete process.env.LOG_LEVEL;
   });
 
-  it('should accept process.env override', () => {
+  it('should use LOG_LEVEL defined in process.env', () => {
     const config = {
       base: {
         logLevel: Level.INFO,
