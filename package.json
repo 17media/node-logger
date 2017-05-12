@@ -45,6 +45,10 @@
     "jest": "^20.0.0"
   },
   "jest": {
-    "collectCoverage": true
+    "collectCoverage": true,
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/lib/",
+      "<rootDir>/node_modules/"
+    ]
   }
 }
