@@ -1,7 +1,9 @@
 import { LogMessage } from '../message';
-import { Slack, Fluentd, Console } from '../service';
+import * as services from '../service';
 import Level from '../enum/level';
 import Logger from '../logger';
+
+const { Slack, Fluentd, Console } = services;
 
 describe('logger', () => {
   describe('config', () => {
@@ -177,6 +179,23 @@ describe('logger', () => {
           expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
           expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
           expect(logFinished).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    it('should not expose internal service errors', () => {
+      Slack.prototype.Log = jest.fn(() => Promise.reject(new Error()));
+      Fluentd.prototype.Log = jest.fn(() => Promise.reject(new Error()));
+      Console.prototype.Log = jest.fn(() => Promise.reject(new Error()));
+
+      const logger = new Logger(config).Label(label);
+
+      return logger.Log(Level.WARN, new LogMessage(message))
+        .then(() => {
+          expect(Slack.prototype.Log).not.toHaveBeenCalled();
+          expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
+          expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
+          expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
+          expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
         });
     });
   });
