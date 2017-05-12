@@ -1,4 +1,4 @@
-# node-logger [![CircleCI](https://circleci.com/gh/17media/node-logger/tree/master.svg?style=shield)](https://circleci.com/gh/17media/node-logger/tree/master) [![npm (scoped)](https://img.shields.io/npm/v/@17media/node-logger.svg)]()
+# node-logger [![CircleCI](https://circleci.com/gh/17media/node-logger/tree/master.svg?style=shield)](https://circleci.com/gh/17media/node-logger/tree/master) [![npm (scoped)](https://img.shields.io/npm/v/@17media/node-logger.svg)]() [![Coverage Status](https://coveralls.io/repos/github/17media/node-logger/badge.svg?branch=master)](https://coveralls.io/github/17media/node-logger?branch=master)
 Centralized logger for 17.Media Node.JS projects
 
 > ... in the fires of Mount Doom, the dark lord Sauron forged, in secret, a **master logger** to control all others.<br>
