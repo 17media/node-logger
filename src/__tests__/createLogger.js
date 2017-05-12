@@ -52,6 +52,22 @@ describe('createLogger', () => {
     Console.prototype.IsConfigValid = originalConsoleConfigCheck;
   });
 
+  it('should wait for logger to finish in promise', (done) => {
+    // delay log services
+    const delay = new Promise(resolve => setTimeout(resolve, 1000));
+    const logFinished = jest.fn(() => Promise.resolve());
+    Logger.prototype.Log = jest.fn(() => delay.then(logFinished));
+    const logMessage = new LogMessage(message);
+
+    createLogger(config)(label)(Level.INFO)(logMessage)
+      .then(() => {
+        expect(Logger.prototype.Log).toHaveBeenCalledTimes(1);
+        expect(Logger.prototype.Log).toHaveBeenCalledWith(Level.INFO, logMessage, label);
+        expect(logFinished).toHaveBeenCalledTimes(1);
+        done();
+      });
+  });
+
   it('should preset label for future logs', () => {
     const logMessage = new LogMessage(message);
 
