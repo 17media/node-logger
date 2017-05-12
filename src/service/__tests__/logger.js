@@ -59,4 +59,16 @@ describe('service/logger', () => {
     expect(logger.ShouldLog(Level.INFO)).toBe(true);
     expect(logger.ShouldLog(Level.DEBUG)).toBe(false);
   });
+
+  it('should throw error when .Log() is called on base class', () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+      logLevel: Level.ERROR,
+    };
+
+    const logger = new Logger(config);
+
+    expect(logger.Log).toThrow(new Error('not implemented'));
+  });
 });
