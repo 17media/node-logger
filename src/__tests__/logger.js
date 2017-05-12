@@ -63,37 +63,6 @@ describe('logger', () => {
       Fluentd.prototype.IsConfigValid = originalFluentdConfigCheck;
       Console.prototype.IsConfigValid = originalConsoleConfigCheck;
     });
-
-    it('should accept process env override', () => {
-      process.env.LOG_LEVEL = Level.INFO;
-
-      const config = {
-        base: {
-          logLevel: Level.WARN,
-          project: 'cool project',
-          environment: 'production',
-        },
-        Slack: {
-          logLevel: Level.ERROR,
-          slackToken: 'token',
-          slackChannel: 'slack channel',
-        },
-        Console: true,
-        Fluentd: {
-          collectorUrl: 'collector URL',
-        },
-      };
-
-      const logger = new Logger(config);
-
-      expect(logger.services).toHaveLength(3);
-      expect(logger.services[0]).toBeInstanceOf(Slack);
-      expect(logger.services[0].config).toEqual(
-        Object.assign({}, config.base, config.Slack)
-      );
-
-      delete process.env.LOG_LEVEL;
-    });
   });
 
   describe('logging', () => {
