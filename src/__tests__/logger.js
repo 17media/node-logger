@@ -159,7 +159,7 @@ describe('logger', () => {
       expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
     });
 
-    it('should wait for logger to finish in promise', (done) => {
+    it('should wait for logger to finish in promise', () => {
       // delay log services
       const delay = new Promise(resolve => setTimeout(resolve, 1000));
       const logFinished = jest.fn(() => Promise.resolve());
@@ -169,7 +169,7 @@ describe('logger', () => {
 
       const logger = new Logger(config).Label(label);
 
-      logger.Log(Level.WARN, new LogMessage(message))
+      return logger.Log(Level.WARN, new LogMessage(message))
         .then(() => {
           expect(Slack.prototype.Log).not.toHaveBeenCalled();
           expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
@@ -177,7 +177,6 @@ describe('logger', () => {
           expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
           expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
           expect(logFinished).toHaveBeenCalledTimes(2);
-          done();
         });
     });
   });
