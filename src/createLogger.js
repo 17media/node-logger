@@ -24,7 +24,7 @@ const createLogger = (config) => {
         message = new LogMessage(...args);
       }
 
-      labelledLogger.Log(level, message);
+      return labelledLogger.Log(level, message);
     };
 
     Object.keys(methodAlias).forEach((method) => {
