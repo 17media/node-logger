@@ -25,6 +25,10 @@ const flattenObject = (source, prefix = '', refSet = new Set()) => {
   );
 };
 
+const formatLogLevel = level => ['debug', 'info', 'warn', 'error', 'fatal'][level];
+
+const getProcessEnv = name => process.env[name];
+
 const hasAllKeys = (testObject, keys) => {
   if (!isObject(testObject) || !isArray(keys)) {
     return false;
@@ -32,8 +36,6 @@ const hasAllKeys = (testObject, keys) => {
 
   return keys.reduce((result, key) => result && has(testObject, key), true);
 };
-
-const formatLogLevel = level => ['debug', 'info', 'warn', 'error', 'fatal'][level];
 
 // check if testLogMessage implements all interfaces of LogMessage
 const isLogMessage = testLogMessage => !!testLogMessage
@@ -45,6 +47,7 @@ const isLogMessage = testLogMessage => !!testLogMessage
 export {
   flattenObject,
   formatLogLevel,
+  getProcessEnv,
   hasAllKeys,
   isLogMessage,
 };

@@ -1,14 +1,15 @@
 import { isObject, isArray } from 'lodash';
 import * as services from './service';
+import { getProcessEnv } from './utils';
 import Level from './enum/level';
-
-const { LOG_LEVEL } = process.env;
 
 class MasterLogger {
   constructor(config) {
     if (!isObject(config) || isArray(config)) {
       throw new Error('invalid config');
     }
+
+    const envLogLevel = Level[getProcessEnv('LOG_LEVEL')];
 
     this.services = Object.keys(services)
     // filter out missing configs
@@ -21,7 +22,7 @@ class MasterLogger {
         config.base,
         config[key],
         // override log level if specified by environment variable
-        LOG_LEVEL ? { logLevel: Level[LOG_LEVEL] } : {}),
+        envLogLevel ? { logLevel: envLogLevel } : {}),
     }))
     // create services from configs
     .map(({ key, serviceConfig }) => new services[key](serviceConfig))
