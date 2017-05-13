@@ -1,7 +1,10 @@
 import { LogMessage } from '../message';
-import { Slack, Fluentd, Console } from '../service';
+import * as services from '../service';
 import Level from '../enum/level';
 import Logger from '../logger';
+import * as utils from '../utils';
+
+const { Slack, Fluentd, Console } = services;
 
 describe('logger', () => {
   describe('config', () => {
@@ -62,6 +65,43 @@ describe('logger', () => {
       Slack.prototype.IsConfigValid = originalSlackConfigCheck;
       Fluentd.prototype.IsConfigValid = originalFluentdConfigCheck;
       Console.prototype.IsConfigValid = originalConsoleConfigCheck;
+    });
+
+    it('should accept process.env override', () => {
+      const originalGetProcessEnv = utils.getProcessEnv;
+      utils.getProcessEnv = jest.fn(() => 'WARN');
+
+      const config = {
+        base: {
+          logLevel: Level.INFO,
+          project: 'cool project',
+          environment: 'production',
+        },
+        Slack: {
+          logLevel: Level.ERROR,
+          slackToken: 'token',
+          slackChannel: 'slack channel',
+        },
+        Console: true,
+        Fluentd: {
+          collectorUrl: 'collector URL',
+        },
+      };
+
+      const logger = new Logger(config);
+
+      expect(logger.services).toHaveLength(3);
+      logger.services.forEach((service) => {
+        ['Slack', 'Fluentd', 'Console'].forEach((serviceName) => {
+          if (service instanceof services[serviceName]) {
+            expect(service.config).toEqual(
+              Object.assign({}, config.base, config[serviceName], { logLevel: Level.WARN })
+            );
+          }
+        });
+      });
+
+      utils.getProcessEnv = originalGetProcessEnv;
     });
   });
 
