@@ -43,9 +43,11 @@ class SlackLogger extends Logger {
 
     const {
       maxLine,
-      short,
+      short = false,
+      excludes = [],
     } = fields || {};
 
+    const fieldsExcludes = ['message'].concat(excludes);
     const logMessageFields = message.toObject();
     const messageOpts = {
       as_user: true,
@@ -54,7 +56,7 @@ class SlackLogger extends Logger {
           color: formatLogLevelSlackColor(level),
           title: `[${formatLogLevel(level).toUpperCase()}] ${message.get('message')}`,
           fields: Object.keys(logMessageFields)
-            .filter(key => !(key === 'message'))
+            .filter(key => !fieldsExcludes.includes(key))
             .map(key => ({
               title: key,
               value: formatMessage(logMessageFields[key], maxLine),
