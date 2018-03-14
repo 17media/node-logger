@@ -38,7 +38,7 @@ class SlackLogger extends Logger {
       project,
       environment,
       slackChannel,
-      options: { fields },
+      options: { fields, getFooter },
     } = this.config;
 
     const {
@@ -49,6 +49,10 @@ class SlackLogger extends Logger {
 
     const fieldsExcludes = ['message'].concat(excludes);
     const logMessageFields = message.toObject();
+    const footer = getFooter
+      ? getFooter(logMessageFields, logTime)
+      : `${project} - ${environment} - ${label}`;
+
     const messageOpts = {
       as_user: true,
       attachments: [
@@ -62,7 +66,7 @@ class SlackLogger extends Logger {
               value: formatMessage(logMessageFields[key], maxLine),
               short,
             })),
-          footer: `${project} - ${environment} - ${label}`,
+          footer,
         },
       ],
     };
