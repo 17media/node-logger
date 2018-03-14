@@ -77,6 +77,42 @@ describe('service/fluentd', () => {
     expect(postMessage).toHaveBeenCalledTimes(1);
   });
 
+  it('should send log request to collector and support options', () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+      slackToken: 'slack token',
+      slackChannel: 'cool channel',
+      options: {
+        fields: {
+          maxLine: 1,
+          short: true,
+        },
+        getFooter: () => 'cool project - production - some:label',
+      },
+    };
+
+    const logger = new Slack(config);
+
+    logger.Log(Level.ERROR, new LogMessage('something happened', { key: 'line1\nline2' }), 'some:label');
+
+    expect(SlackClient.WebClient).toHaveBeenCalledTimes(1);
+    expect(SlackClient.WebClient).toHaveBeenCalledWith(config.slackToken);
+    expect(postMessage).toHaveBeenCalledTimes(1);
+    expect(postMessage).toHaveBeenCalledWith('cool channel', '', expect.objectContaining({
+      attachments: [{
+        color: 'danger',
+        title: '[ERROR] something happened',
+        fields: [{
+          title: 'key',
+          value: 'line1',
+          short: true,
+        }],
+        footer: 'cool project - production - some:label',
+      }],
+    }));
+  });
+
   it('should reuse created web client', () => {
     const config = {
       project: 'cool project',

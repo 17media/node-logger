@@ -37,6 +37,7 @@ describe('logger', () => {
         base: {
           project: 'cool project',
           environment: 'production',
+          options: {},
         },
         Slack: {
           logLevel: Level.DEBUG,
@@ -68,6 +69,7 @@ describe('logger', () => {
   describe('logging', () => {
     const message = 'something happened';
     const label = 'some:label';
+    const logTime = Date.now();
     const originalSlackLog = Slack.prototype.Log;
     const originalFluentdLog = Fluentd.prototype.Log;
     const originalConsoleLog = Console.prototype.Log;
@@ -109,11 +111,11 @@ describe('logger', () => {
 
       expect(logger.services).toHaveLength(3);
       expect(Slack.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Slack.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label);
+      expect(Slack.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label, logTime);
       expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label);
+      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label, logTime);
       expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label);
+      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label, logTime);
     });
 
     it('should skip services with incomplete config', () => {
@@ -127,9 +129,9 @@ describe('logger', () => {
       expect(logger.services).toHaveLength(2);
       expect(Slack.prototype.Log).not.toHaveBeenCalled();
       expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label);
+      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label, logTime);
       expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label);
+      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label, logTime);
 
       Slack.prototype.IsConfigValid = originalSlackConfigCheck;
     });
@@ -142,9 +144,9 @@ describe('logger', () => {
       expect(logger.services).toHaveLength(3);
       expect(Slack.prototype.Log).not.toHaveBeenCalled();
       expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
+      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
       expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
+      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
     });
 
     it('should be able to preset label and pass through message', () => {
@@ -154,9 +156,9 @@ describe('logger', () => {
 
       expect(Slack.prototype.Log).not.toHaveBeenCalled();
       expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
+      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
       expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
+      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
     });
 
     it('should wait for logger to finish in promise', () => {
@@ -173,9 +175,9 @@ describe('logger', () => {
         .then(() => {
           expect(Slack.prototype.Log).not.toHaveBeenCalled();
           expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-          expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
+          expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
           expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-          expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
+          expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
           expect(logFinished).toHaveBeenCalledTimes(2);
         });
     });
@@ -191,9 +193,9 @@ describe('logger', () => {
         .then(() => {
           expect(Slack.prototype.Log).not.toHaveBeenCalled();
           expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-          expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
+          expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
           expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-          expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label);
+          expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
         });
     });
   });
