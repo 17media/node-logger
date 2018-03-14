@@ -12,6 +12,17 @@ function formatLogLevelSlackColor(logLevel) {
   return ['good', 'good', 'warning', 'danger', 'danger'][logLevel];
 }
 
+function formatMessage(message, maxLine) {
+  if (!maxLine) {
+    return message;
+  }
+
+  return message
+    .split('\n')
+    .slice(0, maxLine)
+    .join('\n');
+}
+
 class SlackLogger extends Logger {
   IsConfigValid() {
     return super.IsConfigValid() &&
@@ -27,7 +38,13 @@ class SlackLogger extends Logger {
       project,
       environment,
       slackChannel,
+      options: { fields },
     } = this.config;
+
+    const {
+      maxLine,
+      short,
+    } = fields || {};
 
     const logMessageFields = message.toObject();
     const messageOpts = {
@@ -40,8 +57,8 @@ class SlackLogger extends Logger {
             .filter(key => !(key === 'message'))
             .map(key => ({
               title: key,
-              value: logMessageFields[key],
-              short: false,
+              value: formatMessage(logMessageFields[key], maxLine),
+              short,
             })),
           footer: `${project} - ${environment} - ${label}`,
         },
