@@ -29,7 +29,7 @@ class SlackLogger extends Logger {
       hasAllKeys(this.config, requiredConfig);
   }
 
-  Log(level, message, label) {
+  Log(level, message, label, logTime) {
     if (!this.slackClient) {
       this.slackClient = new SlackClient.WebClient(this.config.slackToken);
     }

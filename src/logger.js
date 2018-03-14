@@ -37,11 +37,12 @@ class MasterLogger {
   }
 
   Log(level, message, label) {
+    const logTime = new Date().getTime();
     const tasks = this.services
     // filter by log level
     .filter(service => service.ShouldLog(level))
     // initiate log service
-    .map(service => service.Log(level, message, label));
+    .map(service => service.Log(level, message, label, logTime));
 
     return Promise.all(tasks).catch(() => Promise.resolve());
   }

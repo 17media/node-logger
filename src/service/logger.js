@@ -28,7 +28,7 @@ class Logger {
 
   // this function must be implemented by individual service
   /* eslint-disable */
-  Log(level, message, label) {
+  Log(level, message, label, logTime) {
     throw new Error('not implemented');
   }
   /* eslint-enable */
