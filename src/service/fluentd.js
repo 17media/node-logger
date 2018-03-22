@@ -13,7 +13,7 @@ class FluentdLogger extends Logger {
       hasAllKeys(this.config, requiredConfig);
   }
 
-  Log(level, message, label) {
+  Log(level, message, label, logTime) {
     const {
       project,
       environment,
@@ -25,7 +25,7 @@ class FluentdLogger extends Logger {
       environment,
       label,
       level: formatLogLevel(level),
-      logTime: new Date().getTime(),
+      logTime,
     });
 
     // replace . with _ in keys because fluentd does not accept .

@@ -9,6 +9,7 @@ const requiredConfig = [
 const baseConfig = {
   // default minimum log level when it's not specified
   logLevel: Level.INFO,
+  options: {},
 };
 
 // abstract base class for different logging services
@@ -27,7 +28,7 @@ class Logger {
 
   // this function must be implemented by individual service
   /* eslint-disable */
-  Log(level, message, label) {
+  Log(level, message, label, logTime) {
     throw new Error('not implemented');
   }
   /* eslint-enable */

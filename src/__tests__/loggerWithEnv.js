@@ -19,6 +19,7 @@ describe('logger with process.env override', () => {
         logLevel: Level.INFO,
         project: 'cool project',
         environment: 'production',
+        options: {},
       },
       Slack: {
         logLevel: Level.ERROR,

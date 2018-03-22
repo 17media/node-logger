@@ -49,6 +49,7 @@
     "coveragePathIgnorePatterns": [
       "<rootDir>/lib/",
       "<rootDir>/node_modules/"
-    ]
+    ],
+    "setupTestFrameworkScriptFile": "<rootDir>/testing/setup.js"
   }
 }
