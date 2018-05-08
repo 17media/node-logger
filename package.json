@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/17media/node-logger#readme",
   "dependencies": {
-    "@slack/client": "^3.9.0",
+    "@slack/client": "^4.2.0",
     "lodash": "^4.17.4",
     "superagent": "^3.5.2"
   },
