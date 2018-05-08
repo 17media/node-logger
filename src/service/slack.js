@@ -1,4 +1,4 @@
-import SlackClient from '@slack/client';
+import { WebClient } from '@slack/client';
 
 import Logger from './logger';
 import { hasAllKeys, formatLogLevel } from '../utils';
@@ -31,7 +31,7 @@ class SlackLogger extends Logger {
 
   Log(level, message, label, logTime) {
     if (!this.slackClient) {
-      this.slackClient = new SlackClient.WebClient(this.config.slackToken);
+      this.slackClient = new WebClient(this.config.slackToken);
     }
 
     const {
@@ -71,7 +71,12 @@ class SlackLogger extends Logger {
       ],
     };
 
-    return this.slackClient.chat.postMessage(slackChannel, '', messageOpts)
+    return this.slackClient.chat.postMessage(
+      Object.assign({
+        channel: slackChannel,
+        text: '',
+      }, messageOpts)
+    )
       .catch(() => Promise.resolve());
   }
 }
