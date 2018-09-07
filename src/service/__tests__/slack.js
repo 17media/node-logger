@@ -1,4 +1,4 @@
-import SlackClient from '@slack/client';
+import * as SlackClient from '@slack/client';
 
 import { LogMessage } from '../../message';
 import { Slack } from '../';
@@ -99,7 +99,9 @@ describe('service/fluentd', () => {
     expect(SlackClient.WebClient).toHaveBeenCalledTimes(1);
     expect(SlackClient.WebClient).toHaveBeenCalledWith(config.slackToken);
     expect(postMessage).toHaveBeenCalledTimes(1);
-    expect(postMessage).toHaveBeenCalledWith('cool channel', '', expect.objectContaining({
+    expect(postMessage).toHaveBeenCalledWith(expect.objectContaining({
+      channel: 'cool channel',
+      text: '',
       attachments: [{
         color: 'danger',
         title: '[ERROR] something happened',
