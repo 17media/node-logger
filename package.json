@@ -26,30 +26,22 @@
   },
   "homepage": "https://github.com/17media/node-logger#readme",
   "dependencies": {
-    "@slack/client": "^4.2.0",
-    "lodash": "^4.17.4",
-    "superagent": "^3.5.2"
+    "@slack/client": "^5.0.2",
+    "lodash": "^4.17.19",
+    "superagent": "^5.3.1"
   },
   "devDependencies": {
-    "@17media/eslint-config-17media": "^1.0.0",
-    "babel-cli": "^6.24.1",
-    "babel-core": "^6.24.1",
-    "babel-eslint": "^7.2.3",
-    "babel-jest": "^20.0.0",
-    "babel-preset-env": "^1.4.0",
-    "coveralls": "^2.13.1",
+    "@17media/eslint-config-17media": "^2.0.0",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^10.1.0",
+    "babel-jest": "^26.2.2",
+    "babel-preset-env": "^1.7.0",
+    "coveralls": "^3.1.0",
     "deep-freeze": "0.0.1",
-    "eslint": "^3.19.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-react": "^6.10.3",
-    "jest": "^22.4.3"
-  },
-  "jest": {
-    "collectCoverage": true,
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/lib/",
-      "<rootDir>/node_modules/"
-    ],
-    "setupTestFrameworkScriptFile": "<rootDir>/testing/setup.js"
+    "eslint": "^7.6.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-react": "^7.20.5",
+    "jest": "^26.2.2"
   }
 }
