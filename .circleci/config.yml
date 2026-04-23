@@ -1,0 +1,63 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+jobs:
+  test_and_build:
+    docker:
+      - image: cimg/node:24.15.0
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run:
+          name: Run Lint
+          command: yarn lint
+      - run:
+          name: Run Tests
+          command: yarn test
+      - run:
+          name: Report Coverage to Coveralls
+          command: |
+            if [ -f coverage/lcov.info ]; then
+              cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+            else
+              echo "Coverage report not found, skipping Coveralls report."
+            fi
+      - run:
+          name: Build Project
+          command: yarn build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  publish:
+    docker:
+      - image: cimg/node:24.15.0
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Authenticate with Registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run:
+          name: Publish to npm
+          command: npm publish --access public
+
+workflows:
+  build-test-publish:
+    jobs:
+      - test_and_build:
+          filters:
+            tags:
+              only: /.*/
+      - publish:
+          requires:
+            - test_and_build
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+(-.*)?$/
+            branches:
+              ignore: /.*/

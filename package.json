@@ -1,13 +1,22 @@
 {
   "name": "@17media/node-logger",
-  "version": "2.1.1",
+  "version": "3.0.0",
+  "type": "module",
   "description": "Centralized logger for 17.Media Node.JS projects",
   "main": "lib/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "require": "./lib/index.js",
+      "types": "./index.d.ts"
+    }
+  },
   "scripts": {
-    "build": "babel src -d lib --ignore __tests__",
-    "build:watch": "npm run build -- --watch",
+    "build": "babel src -d lib --ignore __tests__ && echo '{\"type\": \"commonjs\"}' > lib/package.json",
+    "build:watch": "yarn build --watch",
     "test": "jest",
-    "test:watch": "npm test -- --watch",
+    "test:watch": "yarn test --watch",
     "lint": "eslint ."
   },
   "repository": {
@@ -21,10 +30,20 @@
   ],
   "author": "17media",
   "license": "MIT",
+  "engines": {
+    "node": ">=24.15.0"
+  },
   "bugs": {
     "url": "https://github.com/17media/node-logger/issues"
   },
   "homepage": "https://github.com/17media/node-logger#readme",
+  "files": [
+    "lib",
+    "src",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "@slack/client": "^5.0.2",
     "lodash": "^4.17.19",
@@ -32,16 +51,19 @@
   },
   "devDependencies": {
     "@17media/eslint-config-17media": "^2.0.0",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^26.2.2",
-    "babel-preset-env": "^1.7.0",
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/eslint-parser": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
+    "babel-jest": "^30.3.0",
     "coveralls": "^3.1.0",
     "deep-freeze": "0.0.1",
-    "eslint": "^7.6.0",
-    "eslint-plugin-import": "^2.22.0",
-    "eslint-plugin-react": "^7.20.5",
-    "jest": "^26.2.2"
+    "eslint": "^9.0.0",
+    "@eslint/js": "^9.0.0",
+    "@eslint/eslintrc": "^3.0.0",
+    "globals": "^15.0.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-react": "^7.37.0",
+    "jest": "^30.3.0"
   }
 }

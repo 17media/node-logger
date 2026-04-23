@@ -30,7 +30,15 @@ declare module '@17media/node-logger' {
 
   export interface SlackLoggerConfig extends OptionalLoggerConfig {
     slackToken: string;
-    slackChannel;
+    slackChannel: string;
+    options?: {
+      fields?: {
+        maxLine?: number;
+        short?: boolean;
+        excludes?: string[];
+      };
+      getFooter?: (fields: object, logTime: number) => string;
+    };
   }
 
   export interface FluentdLoggerConfig extends OptionalLoggerConfig {
@@ -42,7 +50,7 @@ declare module '@17media/node-logger' {
   }
 
   export interface LevelLogger {
-    (...args): void;
+    (...args: any[]): void;
   }
 
   export interface WrappedLogger {
@@ -61,8 +69,8 @@ declare module '@17media/node-logger' {
 
   export class Logger {
     constructor(config: LoggerConfig);
-    Label(label: string): { Log: (level: number, message: string) => void };
-    Log(level: number, message: string, label: string): Promise<void>;
+    Label(label: string): { Log: (level: number, message: LogMessage) => void };
+    Log(level: number, message: LogMessage, label: string): Promise<void>;
   }
 
   class ChildLogger {
