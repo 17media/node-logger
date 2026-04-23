@@ -13,11 +13,17 @@
     }
   },
   "scripts": {
+    "prepare": "husky",
     "build": "babel src -d lib --ignore __tests__ && echo '{\"type\": \"commonjs\"}' > lib/package.json",
     "build:watch": "yarn build --watch",
     "test": "jest",
     "test:watch": "yarn test --watch",
     "lint": "eslint ."
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "eslint --fix"
+    ]
   },
   "repository": {
     "type": "git",
@@ -61,9 +67,12 @@
     "eslint": "^9.0.0",
     "@eslint/js": "^9.0.0",
     "@eslint/eslintrc": "^3.0.0",
-    "globals": "^15.0.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react": "^7.37.0",
-    "jest": "^30.3.0"
+    "globals": "^15.0.0",
+    "husky": "^9.0.0",
+    "jest": "^30.3.0",
+    "lint-staged": "^15.0.0"
+
   }
 }
