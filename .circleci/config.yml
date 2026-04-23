@@ -21,7 +21,7 @@ jobs:
           name: Report Coverage to Coveralls
           command: |
             if [ -f coverage/lcov.info ]; then
-              cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+              ./node_modules/.bin/coveralls-next < coverage/lcov.info
             else
               echo "Coverage report not found, skipping Coveralls report."
             fi
