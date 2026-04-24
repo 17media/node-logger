@@ -1,5 +1,6 @@
 import Level from '../enum/level';
 import { hasAllKeys } from '../utils';
+import { LogLevel, LogMessageInterface } from '../types';
 
 const requiredConfig = [
   'project',
@@ -13,25 +14,23 @@ const baseConfig = {
 };
 
 // abstract base class for different logging services
-class Logger {
-  constructor(config) {
+abstract class Logger {
+  protected config: any;
+
+  constructor(config: any) {
     this.config = Object.assign({}, baseConfig, config);
   }
 
-  IsConfigValid() {
+  IsConfigValid(): boolean {
     return hasAllKeys(this.config, requiredConfig);
   }
 
-  ShouldLog(level) {
+  ShouldLog(level: LogLevel): boolean {
     return level >= this.config.logLevel;
   }
 
   // this function must be implemented by individual service
-  /* eslint-disable */
-  Log(level, message, label, logTime) {
-    throw new Error('not implemented');
-  }
-  /* eslint-enable */
+  abstract Log(level: LogLevel, message: LogMessageInterface, label: string, logTime: number): Promise<void>;
 }
 
 export default Logger;

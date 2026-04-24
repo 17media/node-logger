@@ -4,17 +4,17 @@
   "type": "module",
   "description": "Centralized logger for 17.Media Node.JS projects",
   "main": "lib/index.js",
-  "module": "src/index.js",
+  "module": "src/index.ts",
   "exports": {
     ".": {
-      "import": "./src/index.js",
+      "import": "./lib/index.js",
       "require": "./lib/index.js",
-      "types": "./index.d.ts"
+      "types": "./lib/index.d.ts"
     }
   },
   "scripts": {
     "prepare": "husky",
-    "build": "babel src -d lib --ignore __tests__ && echo '{\"type\": \"commonjs\"}' > lib/package.json",
+    "build": "tsc && babel src -d lib --ignore __tests__ --extensions \".ts,.js\" && echo '{\"type\": \"commonjs\"}' > lib/package.json",
     "build:watch": "yarn build --watch",
     "test": "jest",
     "test:watch": "yarn test --watch",
@@ -59,8 +59,11 @@
     "@babel/core": "^7.12.3",
     "@babel/eslint-parser": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
+    "@babel/preset-typescript": "^7.28.5",
     "@eslint/eslintrc": "^3.0.0",
     "@eslint/js": "^9.0.0",
+    "@types/node": "^25.6.0",
+    "@types/superagent": "^8.1.9",
     "babel-jest": "^30.3.0",
     "coveralls-next": "^6.0.1",
     "deep-freeze": "0.0.1",
@@ -70,6 +73,7 @@
     "globals": "^15.0.0",
     "husky": "^9.0.0",
     "jest": "^30.3.0",
-    "lint-staged": "^15.0.0"
+    "lint-staged": "^15.0.0",
+    "typescript": "^6.0.3"
   }
 }

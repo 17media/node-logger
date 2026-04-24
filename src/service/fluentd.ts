@@ -2,23 +2,24 @@ import request from 'superagent';
 
 import Logger from './logger';
 import { hasAllKeys, formatLogLevel } from '../utils';
+import { LogLevel, LogMessageInterface, FluentdLoggerConfig } from '../types';
 
 const requiredConfig = [
   'collectorUrl',
 ];
 
 class FluentdLogger extends Logger {
-  IsConfigValid() {
+  IsConfigValid(): boolean {
     return super.IsConfigValid() &&
       hasAllKeys(this.config, requiredConfig);
   }
 
-  async Log(level, message, label, logTime) {
+  async Log(level: LogLevel, message: LogMessageInterface, label: string, logTime: number): Promise<void> {
     const {
       project,
       environment,
       collectorUrl,
-    } = this.config;
+    } = this.config as FluentdLoggerConfig;
 
     const fluentdObject = Object.assign({}, message.toObject(), {
       project,
@@ -42,7 +43,7 @@ class FluentdLogger extends Logger {
       await request
         .post(collectorUrl)
         .send(fluentdObject);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending log to Fluentd:', error.message);
     }
   }

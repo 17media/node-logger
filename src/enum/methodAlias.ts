@@ -1,6 +1,6 @@
 import Level from './level';
 
-export default {
+const methodAlias = {
   fatal: Level.FATAL,
   error: Level.ERROR,
   warn: Level.WARN,
@@ -8,3 +8,5 @@ export default {
   debug: Level.DEBUG,
   log: Level.INFO,
 };
+
+export default methodAlias;

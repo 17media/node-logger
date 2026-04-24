@@ -12,6 +12,6 @@ export default {
     "<rootDir>/node_modules/"
   ],
   transform: {
-    '^.+\\.jsx?$': 'babel-jest',
+    '^.+\\.[jt]sx?$': 'babel-jest',
   },
 };

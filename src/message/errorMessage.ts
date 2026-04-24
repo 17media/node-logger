@@ -2,7 +2,7 @@ import { flattenObject } from '../utils';
 import LogMessage from './logMessage';
 
 class ErrorMessage extends LogMessage {
-  constructor(message, err, fields = {}) {
+  constructor(message: string, err: any, fields: Record<string, any> = {}) {
     super(message, fields);
 
     const error =
@@ -14,7 +14,7 @@ class ErrorMessage extends LogMessage {
     });
   }
 
-  toString() {
+  toString(): string {
     return `${super.toString()}\n${this.fields.stackTrace}`;
   }
 }

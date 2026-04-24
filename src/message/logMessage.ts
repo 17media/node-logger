@@ -1,12 +1,16 @@
 import { flattenObject } from '../utils';
+import { LogMessageInterface } from '../types';
 
-class LogMessage {
-  constructor(message, fields = {}) {
+class LogMessage implements LogMessageInterface {
+  public message: string;
+  public fields: Record<string, any>;
+
+  constructor(message: string, fields: Record<string, any> = {}) {
     this.message = message;
     this.fields = flattenObject(fields);
   }
 
-  get(fieldName) {
+  get(fieldName: string): any {
     if (fieldName === 'message') {
       return this.message;
     }
@@ -14,11 +18,11 @@ class LogMessage {
     return this.fields[fieldName];
   }
 
-  toString() {
+  toString(): string {
     return this.message;
   }
 
-  toObject() {
+  toObject(): Record<string, any> {
     return Object.assign({}, { message: this.message }, this.fields);
   }
 }

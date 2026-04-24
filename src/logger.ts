@@ -1,41 +1,45 @@
 import * as services from './service';
 import Level from './enum/level';
+import { LogLevel, LogMessageInterface, LoggerConfig } from './types';
+import Logger from './service/logger';
 
 const { LOG_LEVEL } = process.env;
 
 class MasterLogger {
-  constructor(config) {
+  public services: Logger[];
+
+  constructor(config: LoggerConfig) {
     if (config === null || typeof config !== 'object' || Array.isArray(config)) {
       throw new Error('invalid config');
     }
 
-    this.services = Object.keys(services)
+    this.services = (Object.keys(services) as Array<keyof typeof services>)
     // filter out missing configs
-    .filter(key => config[key])
+    .filter(key => (config as any)[key])
     // merge base and service config
-    .map(key => ({
-      key,
-      serviceConfig: Object.assign(
+    .map(key => {
+      const serviceConfig = Object.assign(
         {},
         config.base,
-        config[key],
+        (config as any)[key],
         // override log level if specified by environment variable
-        LOG_LEVEL ? { logLevel: Level[LOG_LEVEL] } : {}),
-    }))
-    // create services from configs
-    .map(({ key, serviceConfig }) => new services[key](serviceConfig))
+        LOG_LEVEL ? { logLevel: (Level as any)[LOG_LEVEL] } : {}
+      );
+      
+      return new services[key](serviceConfig);
+    })
     // filter out services with invalid configs
     .filter(service => service.IsConfigValid());
   }
 
   // wrap Log function and reuse label
-  Label(label) {
+  Label(label: string) {
     return {
-      Log: (level, message) => this.Log(level, message, label),
+      Log: (level: LogLevel, message: LogMessageInterface) => this.Log(level, message, label),
     };
   }
 
-  async Log(level, message, label) {
+  async Log(level: LogLevel, message: LogMessageInterface, label: string) {
     const logTime = new Date().getTime();
     
     const tasks = this.services
@@ -44,9 +48,9 @@ class MasterLogger {
       // initiate log service with timeout protection
       .map(service => {
         const serviceName = service.constructor.name || 'Service';
-        let timeoutId;
+        let timeoutId: NodeJS.Timeout;
         
-        const timeoutPromise = new Promise((_, reject) => {
+        const timeoutPromise = new Promise<void>((_, reject) => {
           timeoutId = setTimeout(() => {
             reject(new Error(`Logging timeout after 10000ms for ${serviceName}`));
           }, 10000);

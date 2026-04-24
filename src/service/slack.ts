@@ -2,17 +2,26 @@ import { WebClient } from '@slack/web-api';
 
 import Logger from './logger';
 import { hasAllKeys, formatLogLevel } from '../utils';
+import { LogLevel, LogMessageInterface, SlackLoggerConfig } from '../types';
 
 const requiredConfig = [
   'slackToken',
   'slackChannel',
 ];
 
-function formatLogLevelSlackColor(logLevel) {
-  return ['good', 'good', 'warning', 'danger', 'danger'][logLevel];
+function formatLogLevelSlackColor(logLevel: LogLevel) {
+  // map LogLevel enum to slack colors
+  const colors: Record<number, string> = {
+    [LogLevel.DEBUG]: 'good',
+    [LogLevel.INFO]: 'good',
+    [LogLevel.WARN]: 'warning',
+    [LogLevel.ERROR]: 'danger',
+    [LogLevel.FATAL]: 'danger',
+  };
+  return colors[logLevel] || 'good';
 }
 
-function formatMessage(message, maxLine) {
+function formatMessage(message: string, maxLine?: number) {
   if (!maxLine) {
     return message;
   }
@@ -24,12 +33,14 @@ function formatMessage(message, maxLine) {
 }
 
 class SlackLogger extends Logger {
-  IsConfigValid() {
+  private slackClient?: WebClient;
+
+  IsConfigValid(): boolean {
     return super.IsConfigValid() &&
       hasAllKeys(this.config, requiredConfig);
   }
 
-  async Log(level, message, label, logTime) {
+  async Log(level: LogLevel, message: LogMessageInterface, label: string, logTime: number): Promise<void> {
     if (!this.slackClient) {
       this.slackClient = new WebClient(this.config.slackToken);
     }
@@ -38,8 +49,13 @@ class SlackLogger extends Logger {
       project,
       environment,
       slackChannel,
-      options: { fields, getFooter },
-    } = this.config;
+      options,
+    } = this.config as SlackLoggerConfig;
+
+    const {
+      fields,
+      getFooter,
+    } = options || {};
 
     const {
       maxLine,
