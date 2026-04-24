@@ -1,5 +1,3 @@
-import request from 'superagent';
-
 import Logger from './logger';
 import { hasAllKeys, formatLogLevel } from '../utils';
 import { LogLevel, LogMessageInterface, FluentdLoggerConfig } from '../types';
@@ -40,9 +38,17 @@ class FluentdLogger extends Logger<FluentdLoggerConfig> {
       });
 
     try {
-      await request
-        .post(collectorUrl)
-        .send(fluentdObject);
+      const response = await fetch(collectorUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(fluentdObject),
+      });
+
+      if (!response.ok) {
+        console.error(`Error sending log to Fluentd: ${response.status} ${response.statusText}`);
+      }
     } catch (error: any) {
       console.error('Error sending log to Fluentd:', error.message);
     }
