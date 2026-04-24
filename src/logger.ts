@@ -42,11 +42,8 @@ class MasterLogger {
   async Log(level: LogLevel, message: LogMessageInterface, label: string) {
     const logTime = new Date().getTime();
     
-    const tasks = this.services
-      // filter by log level
-      .filter(service => service.ShouldLog(level))
-      // initiate log service with timeout protection
-      .map(service => {
+    const activeServices = this.services.filter(service => service.ShouldLog(level));
+    const tasks = activeServices.map(service => {
         const serviceName = service.constructor.name || 'Service';
         let timeoutId: NodeJS.Timeout;
         
@@ -69,7 +66,7 @@ class MasterLogger {
     // 檢查是否有任何服務執行失敗
     results.forEach((result, index) => {
       if (result.status === 'rejected') {
-        const serviceName = this.services[index]?.constructor.name || 'UnknownService';
+        const serviceName = activeServices[index]?.constructor.name || 'Service';
         console.error(`[MasterLogger] Service "${serviceName}" failed to log:`, result.reason);
       }
     });

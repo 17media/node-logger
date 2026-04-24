@@ -1,6 +1,6 @@
 import { LogMessageInterface } from '../types';
 
-const formatLogLevel = (level: number): string => ['debug', 'info', 'warn', 'error', 'fatal'][level];
+const formatLogLevel = (level: number): string => ['debug', 'info', 'warn', 'error', 'fatal'][level] || 'all';
 
 const flattenObject = (source: any, prefix = '', maxDepth = 10): Record<string, any> => {
   const result: Record<string, any> = {};
@@ -8,9 +8,7 @@ const flattenObject = (source: any, prefix = '', maxDepth = 10): Record<string, 
   const seen = new Set();
 
   while (stack.length > 0) {
-    const item = stack.pop();
-    if (!item) continue;
-    const { obj, path, depth } = item;
+    const { obj, path, depth } = stack.pop()!;
 
     // 基本型別處理 (Primitive values)
     if (obj === null || (typeof obj !== 'object' && typeof obj !== 'function')) {
