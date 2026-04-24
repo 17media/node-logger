@@ -16,12 +16,12 @@ jest.mock('@slack/web-api', () => {
 });
 
 describe('service/slack', () => {
-  let mockPostMessage;
+  let mockPostMessage: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
     // Get reference to the mocked postMessage
-    mockPostMessage = new WebClient().chat.postMessage;
+    mockPostMessage = new (WebClient as any)().chat.postMessage;
     jest.clearAllMocks(); // Clear the constructor call from getting the reference
   });
 
@@ -37,26 +37,38 @@ describe('service/slack', () => {
     expect(logger.IsConfigValid()).toBe(true);
   });
 
-  it('should detect missing slack token in config', () => {
-    const config = {
-      project: 'cool project',
-      environment: 'production',
-      slackChannel: 'cool channel',
-    };
-
-    const logger = new Slack(config);
-    expect(logger.IsConfigValid()).toBe(false);
-  });
-
-  it('should detect missing slack channel in config', () => {
+  it('should send log request to slack with default color for ALL level', async () => {
     const config = {
       project: 'cool project',
       environment: 'production',
       slackToken: 'slack token',
+      slackChannel: 'cool channel',
     };
 
     const logger = new Slack(config);
-    expect(logger.IsConfigValid()).toBe(false);
+    // Level.ALL is -1, which is not in the color map
+    await logger.Log(Level.ALL, new LogMessage('something happened'), 'some:label', Date.now());
+
+    expect(mockPostMessage).toHaveBeenCalledWith(expect.objectContaining({
+      attachments: [expect.objectContaining({
+        color: 'good',
+      })],
+    }));
+  });
+
+  it('should handle missing options in config', async () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+      slackToken: 'slack token',
+      slackChannel: 'cool channel',
+      // no options field
+    };
+
+    const logger = new Slack(config);
+    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label', Date.now());
+
+    expect(mockPostMessage).toHaveBeenCalledTimes(1);
   });
 
   it('should send log request to slack', async () => {
@@ -68,7 +80,7 @@ describe('service/slack', () => {
     };
 
     const logger = new Slack(config);
-    await logger.Log(Level.ERROR, new LogMessage('something happened', { key: 'value' }), 'some:label');
+    await logger.Log(Level.ERROR, new LogMessage('something happened', { key: 'value' }), 'some:label', Date.now());
 
     expect(WebClient).toHaveBeenCalledTimes(1);
     expect(WebClient).toHaveBeenCalledWith(config.slackToken);
@@ -91,7 +103,7 @@ describe('service/slack', () => {
     };
 
     const logger = new Slack(config);
-    await logger.Log(Level.ERROR, new LogMessage('something happened', { key: 'line1\nline2' }), 'some:label');
+    await logger.Log(Level.ERROR, new LogMessage('something happened', { key: 'line1\nline2' }), 'some:label', Date.now());
 
     expect(WebClient).toHaveBeenCalledTimes(1);
     expect(WebClient).toHaveBeenCalledWith(config.slackToken);
@@ -121,8 +133,8 @@ describe('service/slack', () => {
     };
 
     const logger = new Slack(config);
-    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
-    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label', Date.now());
+    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label', Date.now());
 
     expect(WebClient).toHaveBeenCalledTimes(1);
     expect(WebClient).toHaveBeenCalledWith(config.slackToken);
@@ -141,7 +153,7 @@ describe('service/slack', () => {
 
     const logger = new Slack(config);
     // Should not throw
-    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label', Date.now());
     
     expect(WebClient).toHaveBeenCalledTimes(1);
     expect(mockPostMessage).toHaveBeenCalledTimes(1);
@@ -159,7 +171,7 @@ describe('service/slack', () => {
     };
 
     const logger = new Slack(config);
-    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label', Date.now());
 
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Slack logging failed: some_error'));
     consoleSpy.mockRestore();

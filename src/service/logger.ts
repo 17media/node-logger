@@ -10,7 +10,6 @@ const requiredConfig = [
 const baseConfig = {
   // default minimum log level when it's not specified
   logLevel: Level.INFO,
-  options: {},
 };
 
 // abstract base class for different logging services

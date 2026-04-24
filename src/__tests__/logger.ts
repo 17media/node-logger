@@ -2,27 +2,28 @@ import { LogMessage } from '../message';
 import { Slack, Fluentd, Console } from '../service';
 import Level from '../enum/level';
 import Logger from '../logger';
+import { LogLevel } from '../types';
 
 describe('logger', () => {
   describe('config', () => {
     it('should accept object', () => {
-      expect(() => new Logger({ key: 'value' })).not.toThrow('invalid config');
+      expect(() => new Logger({ key: 'value' } as any)).not.toThrow('invalid config');
     });
 
     it('should not accept string', () => {
-      expect(() => new Logger('not object')).toThrow('invalid config');
+      expect(() => new Logger('not object' as any)).toThrow('invalid config');
     });
 
     it('should not accept integer', () => {
-      expect(() => new Logger(1)).toThrow('invalid config');
+      expect(() => new Logger(1 as any)).toThrow('invalid config');
     });
 
     it('should not accept null', () => {
-      expect(() => new Logger(null)).toThrow('invalid config');
+      expect(() => new Logger(null as any)).toThrow('invalid config');
     });
 
     it('should not accept array', () => {
-      expect(() => new Logger([3, 4, 5])).toThrow('invalid config');
+      expect(() => new Logger([3, 4, 5] as any)).toThrow('invalid config');
     });
 
     it('should initiate proper services according to config', () => {
@@ -47,12 +48,12 @@ describe('logger', () => {
         Console: false,
       };
 
-      const logger = new Logger(config);
+      const logger = new Logger(config as any);
 
       expect(logger.services).toHaveLength(1);
       expect(logger.services[0]).toBeInstanceOf(Slack);
-      expect(logger.services[0].config).toEqual(
-        Object.assign({}, config.base, config.Slack)
+      expect((logger.services[0] as any).config).toEqual(
+        Object.assign({}, { logLevel: Level.INFO }, config.base, config.Slack)
       );
       expect(Slack.prototype.IsConfigValid).toHaveBeenCalledTimes(1);
 
@@ -69,7 +70,7 @@ describe('logger', () => {
     const originalSlackLog = Slack.prototype.Log;
     const originalFluentdLog = Fluentd.prototype.Log;
     const originalConsoleLog = Console.prototype.Log;
-    let config;
+    let config: any;
 
     beforeEach(() => {
       Slack.prototype.Log = jest.fn(() => Promise.resolve());
@@ -95,7 +96,7 @@ describe('logger', () => {
 
       jest.spyOn(global, 'Date').mockImplementation(() => ({
         getTime: () => logTime,
-      }));
+      } as any));
     });
 
     afterAll(() => {
@@ -107,7 +108,7 @@ describe('logger', () => {
 
     it('should call each service and pass through message', async () => {
       const logger = new Logger(config);
-      await logger.Log(Level.ERROR, new LogMessage(message), label);
+      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message), label);
 
       expect(logger.services).toHaveLength(3);
       expect(Slack.prototype.Log).toHaveBeenCalledTimes(1);
@@ -123,7 +124,7 @@ describe('logger', () => {
       Slack.prototype.IsConfigValid = jest.fn(() => false);
 
       const logger = new Logger(config);
-      await logger.Log(Level.ERROR, new LogMessage(message), label);
+      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message), label);
 
       expect(logger.services).toHaveLength(2);
       expect(Slack.prototype.Log).not.toHaveBeenCalled();
@@ -145,7 +146,7 @@ describe('logger', () => {
       });
 
       const logger = new Logger(config).Label(label);
-      await logger.Log(Level.ERROR, new LogMessage(message));
+      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message));
 
       expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
       expect(logFinished).toHaveBeenCalledTimes(2);
@@ -158,7 +159,7 @@ describe('logger', () => {
 
       const logger = new Logger(config).Label(label);
       // Should resolve normally
-      await logger.Log(Level.ERROR, new LogMessage(message));
+      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message));
       
       expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[MasterLogger] Service "SlackLogger" failed to log:'), expect.any(Error));
@@ -170,18 +171,48 @@ describe('logger', () => {
     it('should handle service failure even if service name is missing', async () => {
       const logger = new Logger(config);
       // 手動注入一個匿名物件作為服務，模擬極端情況
-      logger.services.push({
+      const anonymousService = {
         ShouldLog: () => true,
         Log: () => Promise.reject(new Error('Anonymous Fail')),
         IsConfigValid: () => true,
-      });
+      };
+      
+      // Override constructor to test the 'Service' fallback
+      Object.defineProperty(anonymousService, 'constructor', { value: { name: '' } });
+
+      logger.services.push(anonymousService as any);
 
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      await logger.Log(Level.ERROR, new LogMessage(message));
+      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message));
 
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[MasterLogger] Service "Object" failed to log:'), expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[MasterLogger] Service "Service" failed to log:'), expect.any(Error));
       
       consoleSpy.mockRestore();
+    });
+
+    it('should timeout if service takes too long', async () => {
+      jest.useFakeTimers();
+      const logger = new Logger(config);
+      
+      // 模擬一個永遠不會結束的服務
+      Slack.prototype.Log = jest.fn(() => new Promise(() => {}));
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      
+      const logPromise = logger.Log(Level.ERROR as LogLevel, new LogMessage(message), label);
+      
+      // 快轉時間
+      jest.advanceTimersByTime(11000);
+      
+      await logPromise;
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[MasterLogger] Service "SlackLogger" failed to log:'),
+        expect.objectContaining({ message: expect.stringContaining('Logging timeout') })
+      );
+      
+      consoleSpy.mockRestore();
+      jest.useRealTimers();
     });
   });
 });
