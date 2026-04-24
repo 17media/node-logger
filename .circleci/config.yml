@@ -16,17 +16,21 @@ jobs:
           command: yarn lint
       - run:
           name: Run Tests
-          command: yarn test
-      - run:
-          name: Report Coverage to Coveralls
           command: |
-            if [ -f coverage/lcov.info ]; then
-              # 明確指定服務名稱與開啟 verbose 模式
-              export COVERALLS_SERVICE_NAME=circleci
-              npx coveralls -v < coverage/lcov.info
-            else
-              echo "Coverage report not found, skipping Coveralls report."
-            fi
+            mkdir -p test-results/jest
+            JEST_JUNIT_OUTPUT_DIR="test-results/jest" JEST_JUNIT_OUTPUT_NAME="results.xml" yarn jest --reporters=default --reporters=jest-junit
+      - store_test_results:
+          path: test-results
+      # - run:
+      #     name: Report Coverage to Coveralls
+      #     command: |
+      #       if [ -f coverage/lcov.info ]; then
+      #         # 明確指定服務名稱與開啟 verbose 模式
+      #         export COVERALLS_SERVICE_NAME=circleci
+      #         npx coveralls -v < coverage/lcov.info
+      #       else
+      #         echo "Coverage report not found, skipping Coveralls report."
+      #       fi
       - run:
           name: Build Project
           command: yarn build
