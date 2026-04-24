@@ -91,3 +91,26 @@ LOG_LEVEL=DEBUG node app.js
 ## 🛡 安全特性
 - **循環參照偵測 (Circular Reference)**: 自動偵測物件中的循環引用並標註，防止序列化失敗。
 - **最大深度保護**: 預設展開至 10 層，超過深度則標註為 `[Max Depth Reached]`，防止處理過大物件導致阻塞。
+
+## 🛠 開發指南 (Development)
+
+### 開發標準
+- **嚴格型別**: 禁止使用 `any`。優先使用泛型或 `unknown` 搭配型別守衛。
+- **測試要求**: 所有的 Pull Request 均需維持 100% 的邏輯與分支覆蓋率。
+- **Git Hooks**: 每次 `git commit` 前會自動執行代碼風格檢查與 `tsc` 型別檢查。若檢查失敗將無法提交。
+
+### 常用指令
+- `yarn test`: 執行所有測試並產出覆蓋率報告。
+- `yarn lint`: 檢查並自動修正代碼風格。
+- `yarn build`: 手動觸發編譯（僅用於本地 `npm link` 測試）。
+
+### 發佈流程 (Releasing)
+本專案採用 CircleCI 自動化發佈流程。發佈新版本步驟如下：
+1. 在 Pull Request 中更新 `package.json` 的版本號並同步更新 `CHANGELOG.md`。
+2. 將 PR 合併至 `master` 分支。
+3. 在本地建立並推送 Git Tag：
+   ```bash
+   git tag v3.0.x
+   git push origin v3.0.x
+   ```
+4. CircleCI 偵測到新 Tag 後，會自動執行測試、編譯並發佈至 npm registry。

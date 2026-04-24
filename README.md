@@ -91,3 +91,26 @@ LOG_LEVEL=DEBUG node app.js
 ## 🛡 Security Features
 - **Circular Reference Detection**: Automatically marks objects as `[Circular Reference]`.
 - **Max Depth Protection**: Default limit is 10 levels, marks as `[Max Depth Reached]` beyond that.
+
+## 🛠 Development
+
+### Standards
+- **Strict Typing**: No `any` allowed. Use generics or `unknown` with type guards.
+- **Testing**: 100% logic and branch coverage is required for all PRs.
+- **Git Hooks**: Pre-commit hooks run `eslint` and `tsc --noEmit`. Commits will fail if there are linting or type errors.
+
+### Useful Commands
+- `yarn test`: Run all tests with coverage report.
+- `yarn lint`: Check and fix code style.
+- `yarn build`: Manually trigger build (mainly for local `npm link` testing).
+
+### Releasing
+Releases are automated via CircleCI. To publish a new version:
+1. Update the version in `package.json` and `CHANGELOG.md` in your PR.
+2. Merge the PR into the `master` branch.
+3. Create and push a Git tag:
+   ```bash
+   git tag v3.0.x
+   git push origin v3.0.x
+   ```
+4. CircleCI will detect the tag, run tests, build the project, and publish it to the npm registry.
