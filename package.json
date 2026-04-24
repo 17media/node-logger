@@ -51,8 +51,8 @@
     "LICENSE"
   ],
   "dependencies": {
-    "@slack/client": "^5.0.2",
-    "lodash": "^4.17.19",
+    "@slack/web-api": "^7.15.1",
+    "lodash": "^4.18.1",
     "superagent": "^10.3.0"
   },
   "devDependencies": {
