@@ -21,7 +21,9 @@ jobs:
           name: Report Coverage to Coveralls
           command: |
             if [ -f coverage/lcov.info ]; then
-              npx coveralls < coverage/lcov.info
+              # 明確指定服務名稱與開啟 verbose 模式
+              export COVERALLS_SERVICE_NAME=circleci
+              npx coveralls -v < coverage/lcov.info
             else
               echo "Coverage report not found, skipping Coveralls report."
             fi
