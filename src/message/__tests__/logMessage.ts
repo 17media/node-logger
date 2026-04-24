@@ -1,5 +1,4 @@
-import deepFreeze from 'deep-freeze';
-import { LogMessage } from '../';
+import { LogMessage } from '../index';
 
 describe('message/logMessage', () => {
   it('should construct log message without optional fields', () => {

@@ -5,7 +5,7 @@ export default {
     "<rootDir>/node_modules/",
     "<rootDir>/testing/"
   ],
-  setupFilesAfterEnv: ['<rootDir>/testing/setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/testing/setup.ts'],
   testEnvironment: 'node',
   testPathIgnorePatterns: [
     "<rootDir>/lib/",

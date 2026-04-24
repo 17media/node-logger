@@ -1,4 +1,3 @@
-import deepFreeze from 'deep-freeze';
 import { flattenObject } from '../';
 
 describe('utils/flattenObject', () => {

@@ -46,3 +46,7 @@ export interface LogMessageInterface {
   toObject(): Record<string, any>;
   get(fieldName: string): any;
 }
+
+declare global {
+  function deepFreeze<T extends object>(obj: T): T;
+}
