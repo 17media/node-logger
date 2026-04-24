@@ -5,7 +5,7 @@
 
 [繁體中文版](./README.zh-TW.md)
 
-Centralized logger for 17.Media Node.JS projects.
+Centralized logger for 17LIVE Node.JS projects.
 
 > ... in the fires of Mount Doom, the dark lord Sauron forged, in secret, a **master logger** to control all others.<br>
 > **"One logger to log them all!"**

@@ -5,7 +5,7 @@
 
 [English Version](./README.md)
 
-專為 17.Media Node.JS 專案設計的集中化 Logger 服務。
+專為 17LIVE Node.JS 專案設計的集中化 Logger 服務。
 
 > ... 在末日火山的烈焰中，黑暗魔君索倫秘密打造了一個 **Master Logger**，用以統御所有服務。<br>
 > **"One logger to log them all!"**

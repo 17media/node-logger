@@ -2,7 +2,7 @@
   "name": "@17media/node-logger",
   "version": "3.0.0",
   "type": "module",
-  "description": "Centralized logger for 17.Media Node.JS projects",
+  "description": "Centralized logger for 17LIVE Node.JS projects",
   "main": "lib/index.js",
   "module": "src/index.ts",
   "exports": {
