@@ -146,4 +146,22 @@ describe('service/slack', () => {
     expect(WebClient).toHaveBeenCalledTimes(1);
     expect(mockPostMessage).toHaveBeenCalledTimes(1);
   });
+
+  it('should handle Slack API error (ok: false)', async () => {
+    mockPostMessage.mockImplementationOnce(() => Promise.resolve({ ok: false, error: 'some_error' }));
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+      slackToken: 'slack token',
+      slackChannel: 'cool channel',
+    };
+
+    const logger = new Slack(config);
+    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Slack logging failed: some_error'));
+    consoleSpy.mockRestore();
+  });
 });
