@@ -2,10 +2,9 @@ import * as services from './service';
 import Level from './enum/level';
 import { LogLevel, LogMessageInterface, LoggerConfig, BaseLoggerConfig } from './types';
 import Logger from './service/logger';
+import { getEnvLogLevel, DEFAULT_TIMEOUT_MS } from './constants';
 
 const { LOG_LEVEL } = process.env;
-
-type LevelKey = keyof typeof Level;
 
 class MasterLogger {
   public services: Logger<BaseLoggerConfig>[];
@@ -15,13 +14,13 @@ class MasterLogger {
       throw new Error('invalid config');
     }
 
+    const envLogLevel = getEnvLogLevel(LOG_LEVEL);
+
     this.services = (Object.keys(services) as Array<keyof typeof services>)
       // filter out missing configs
       .filter((key) => !!config[key])
       // merge base and service config
       .map((key) => {
-        const envLogLevel = LOG_LEVEL && (Level as Record<string, LogLevel>)[LOG_LEVEL];
-        
         const serviceConfig = Object.assign(
           {},
           config.base,
@@ -53,8 +52,8 @@ class MasterLogger {
         
         const timeoutPromise = new Promise<void>((_, reject) => {
           timeoutId = setTimeout(() => {
-            reject(new Error(`Logging timeout after 10000ms for ${serviceName}`));
-          }, 10000);
+            reject(new Error(`Logging timeout after ${DEFAULT_TIMEOUT_MS}ms for ${serviceName}`));
+          }, DEFAULT_TIMEOUT_MS);
         });
 
         return Promise.race([

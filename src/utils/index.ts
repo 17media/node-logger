@@ -1,8 +1,9 @@
 import { LogMessageInterface } from '../types';
+import { DEFAULT_MAX_DEPTH } from '../constants';
 
 const formatLogLevel = (level: number): string => ['debug', 'info', 'warn', 'error', 'fatal'][level] || 'all';
 
-const flattenObject = (source: unknown, prefix = '', maxDepth = 10): Record<string, any> => {
+const flattenObject = (source: unknown, prefix = '', maxDepth = DEFAULT_MAX_DEPTH): Record<string, any> => {
   const result: Record<string, any> = {};
   const stack: Array<{ obj: any, path: string, depth: number }> = [{ obj: source, path: prefix, depth: 0 }];
   const seen = new Set();

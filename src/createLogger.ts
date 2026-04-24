@@ -18,6 +18,11 @@ interface WrappedLogger {
   log: LevelLogger;
 }
 
+/**
+ * 建立一個 Logger 工廠函數。
+ * @param config Logger 配置物件，包含 Slack, Fluentd, Console 等服務的設定。
+ * @returns 一個接收 label 並回傳 WrappedLogger 的函數。
+ */
 const createLogger = (config: LoggerConfig) => {
   const internalLogger = new Logger(config);
 
