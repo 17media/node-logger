@@ -46,8 +46,9 @@
   "files": [
     "lib",
     "src",
-    "index.d.ts",
     "README.md",
+    "README.zh-TW.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "dependencies": {
