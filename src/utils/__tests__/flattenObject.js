@@ -80,4 +80,18 @@ describe('utils/flattenObject', () => {
 
     expect(flattenObject(testObject)).toEqual(expected);
   });
+
+  it('should respect maxDepth limit', () => {
+    const source = {
+      level1: {
+        level2: {
+          level3: 'value',
+        },
+      },
+    };
+
+    expect(flattenObject(source, '', 2)).toEqual({
+      'level1.level2': '[Max Depth Reached]',
+    });
+  });
 });
