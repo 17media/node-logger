@@ -13,7 +13,7 @@ class FluentdLogger extends Logger {
       hasAllKeys(this.config, requiredConfig);
   }
 
-  Log(level, message, label, logTime) {
+  async Log(level, message, label, logTime) {
     const {
       project,
       environment,
@@ -38,12 +38,13 @@ class FluentdLogger extends Logger {
         }
       });
 
-    return new Promise((resolve) => {
-      request
-      .post(collectorUrl)
-      .send(JSON.stringify(fluentdObject))
-      .end(() => resolve());
-    });
+    try {
+      await request
+        .post(collectorUrl)
+        .send(fluentdObject);
+    } catch (error) {
+      console.error('Error sending log to Fluentd:', error.message);
+    }
   }
 }
 

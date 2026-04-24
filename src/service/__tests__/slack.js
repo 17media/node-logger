@@ -1,24 +1,28 @@
-import * as SlackClient from '@slack/client';
-
+import { WebClient } from '@slack/web-api';
 import { LogMessage } from '../../message';
 import { Slack } from '../';
 import Level from '../../enum/level';
 
-describe('service/fluentd', () => {
-  const originalSlackClientWebClient = SlackClient.WebClient;
-  let postMessage;
-
-  beforeEach(() => {
-    postMessage = jest.fn(() => Promise.resolve());
-    SlackClient.WebClient = jest.fn(() => ({
+// Mock the entire @slack/web-api module
+jest.mock('@slack/web-api', () => {
+  const postMessage = jest.fn(() => Promise.resolve({ ok: true }));
+  return {
+    WebClient: jest.fn(() => ({
       chat: {
         postMessage,
       },
-    }));
-  });
+    })),
+  };
+});
 
-  afterAll(() => {
-    SlackClient.WebClient = originalSlackClientWebClient;
+describe('service/slack', () => {
+  let mockPostMessage;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Get reference to the mocked postMessage
+    mockPostMessage = new WebClient().chat.postMessage;
+    jest.clearAllMocks(); // Clear the constructor call from getting the reference
   });
 
   it('should check for slack token and channel in config', () => {
@@ -30,12 +34,10 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Slack(config);
-
     expect(logger.IsConfigValid()).toBe(true);
   });
 
   it('should detect missing slack token in config', () => {
-    // missing slack token
     const config = {
       project: 'cool project',
       environment: 'production',
@@ -43,12 +45,10 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Slack(config);
-
     expect(logger.IsConfigValid()).toBe(false);
   });
 
   it('should detect missing slack channel in config', () => {
-    // missing slack channel
     const config = {
       project: 'cool project',
       environment: 'production',
@@ -56,11 +56,10 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Slack(config);
-
     expect(logger.IsConfigValid()).toBe(false);
   });
 
-  it('should send log request to collector', () => {
+  it('should send log request to slack', async () => {
     const config = {
       project: 'cool project',
       environment: 'production',
@@ -69,15 +68,14 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Slack(config);
+    await logger.Log(Level.ERROR, new LogMessage('something happened', { key: 'value' }), 'some:label');
 
-    logger.Log(Level.ERROR, new LogMessage('something happened', { key: 'value' }), 'some:label');
-
-    expect(SlackClient.WebClient).toHaveBeenCalledTimes(1);
-    expect(SlackClient.WebClient).toHaveBeenCalledWith(config.slackToken);
-    expect(postMessage).toHaveBeenCalledTimes(1);
+    expect(WebClient).toHaveBeenCalledTimes(1);
+    expect(WebClient).toHaveBeenCalledWith(config.slackToken);
+    expect(mockPostMessage).toHaveBeenCalledTimes(1);
   });
 
-  it('should send log request to collector and support options', () => {
+  it('should send log request to slack and support options', async () => {
     const config = {
       project: 'cool project',
       environment: 'production',
@@ -93,15 +91,14 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Slack(config);
+    await logger.Log(Level.ERROR, new LogMessage('something happened', { key: 'line1\nline2' }), 'some:label');
 
-    logger.Log(Level.ERROR, new LogMessage('something happened', { key: 'line1\nline2' }), 'some:label');
-
-    expect(SlackClient.WebClient).toHaveBeenCalledTimes(1);
-    expect(SlackClient.WebClient).toHaveBeenCalledWith(config.slackToken);
-    expect(postMessage).toHaveBeenCalledTimes(1);
-    expect(postMessage).toHaveBeenCalledWith(expect.objectContaining({
+    expect(WebClient).toHaveBeenCalledTimes(1);
+    expect(WebClient).toHaveBeenCalledWith(config.slackToken);
+    expect(mockPostMessage).toHaveBeenCalledTimes(1);
+    expect(mockPostMessage).toHaveBeenCalledWith(expect.objectContaining({
       channel: 'cool channel',
-      text: '',
+      text: '[ERROR] something happened',
       attachments: [{
         color: 'danger',
         title: '[ERROR] something happened',
@@ -115,7 +112,7 @@ describe('service/fluentd', () => {
     }));
   });
 
-  it('should reuse created web client', () => {
+  it('should reuse created web client', async () => {
     const config = {
       project: 'cool project',
       environment: 'production',
@@ -124,17 +121,16 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Slack(config);
+    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
 
-    logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
-    logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
-
-    expect(SlackClient.WebClient).toHaveBeenCalledTimes(1);
-    expect(SlackClient.WebClient).toHaveBeenCalledWith(config.slackToken);
-    expect(postMessage).toHaveBeenCalledTimes(2);
+    expect(WebClient).toHaveBeenCalledTimes(1);
+    expect(WebClient).toHaveBeenCalledWith(config.slackToken);
+    expect(mockPostMessage).toHaveBeenCalledTimes(2);
   });
 
-  it('should not expose internal service error', () => {
-    postMessage = jest.fn(() => Promise.reject(new Error()));
+  it('should not expose internal service error', async () => {
+    mockPostMessage.mockImplementationOnce(() => Promise.reject(new Error('Slack Error')));
 
     const config = {
       project: 'cool project',
@@ -144,12 +140,10 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Slack(config);
-
-    return logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label')
-      .then(() => {
-        expect(SlackClient.WebClient).toHaveBeenCalledTimes(1);
-        expect(SlackClient.WebClient).toHaveBeenCalledWith(config.slackToken);
-        expect(postMessage).toHaveBeenCalledTimes(1);
-      });
+    // Should not throw
+    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+    
+    expect(WebClient).toHaveBeenCalledTimes(1);
+    expect(mockPostMessage).toHaveBeenCalledTimes(1);
   });
 });

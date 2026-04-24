@@ -3,23 +3,26 @@ import { LogMessage } from '../../message';
 import { Fluentd } from '../';
 import Level from '../../enum/level';
 
+// Mock the entire superagent module
+jest.mock('superagent', () => {
+  const sendRequest = jest.fn().mockReturnThis();
+  const postRequest = jest.fn(() => ({
+    send: sendRequest,
+    // Modern superagent is a promise, so we should support .then()
+    then: (resolve) => resolve({ ok: true }),
+  }));
+  return {
+    post: postRequest,
+  };
+});
+
 describe('service/fluentd', () => {
-  let sendRequest;
-  let endRequest;
-  const originalSuperagentPost = superagent.post;
+  let mockSend;
 
   beforeEach(() => {
-    endRequest = jest.fn();
-    sendRequest = jest.fn(() => ({
-      end: endRequest,
-    }));
-    superagent.post = jest.fn(() => ({
-      send: sendRequest,
-    }));
-  });
-
-  afterAll(() => {
-    superagent.post = originalSuperagentPost;
+    jest.clearAllMocks();
+    mockSend = superagent.post().send;
+    jest.clearAllMocks();
   });
 
   it('should check for collector URL in config', () => {
@@ -30,23 +33,20 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Fluentd(config);
-
     expect(logger.IsConfigValid()).toBe(true);
   });
 
   it('should detect missing collector URL in config', () => {
-    // missing collector URL
     const config = {
       project: 'cool project',
       environment: 'production',
     };
 
     const logger = new Fluentd(config);
-
     expect(logger.IsConfigValid()).toBe(false);
   });
 
-  it('should send log request to collector', () => {
+  it('should send log request to collector', async () => {
     const config = {
       project: 'cool project',
       environment: 'production',
@@ -54,16 +54,14 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Fluentd(config);
-
-    logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
 
     expect(superagent.post).toHaveBeenCalledTimes(1);
     expect(superagent.post).toHaveBeenCalledWith(config.collectorUrl);
-    expect(sendRequest).toHaveBeenCalledTimes(1);
-    expect(endRequest).toHaveBeenCalledTimes(1);
+    expect(mockSend).toHaveBeenCalledTimes(1);
   });
 
-  it('should replce . with _ in object keys', () => {
+  it('should replace . with _ in object keys', async () => {
     const config = {
       project: 'cool project',
       environment: 'production',
@@ -75,20 +73,17 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Fluentd(config);
-
-    logger.Log(Level.ERROR, new LogMessage('something happened', additionalInfo), 'some:label');
+    await logger.Log(Level.ERROR, new LogMessage('something happened', additionalInfo), 'some:label');
 
     expect(superagent.post).toHaveBeenCalledTimes(1);
-    expect(superagent.post).toHaveBeenCalledWith(config.collectorUrl);
-    expect(sendRequest).toHaveBeenCalledTimes(1);
-    expect(sendRequest).toHaveBeenCalledWith(expect.any(String));
-    expect(sendRequest).toHaveBeenCalledWith(expect.stringMatching(/"object_key_key2":"value"/g));
-    expect(sendRequest).toHaveBeenCalledWith(expect.stringMatching(/"key_not_affected":"value2"/g));
-    expect(endRequest).toHaveBeenCalledTimes(1);
+    expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({
+      object_key_key2: 'value',
+      key_not_affected: 'value2',
+    }));
   });
 
-  it('should not expose internal service error', () => {
-    endRequest = jest.fn(callback => callback(new Error()));
+  it('should not expose internal service error', async () => {
+    mockSend.mockImplementationOnce(() => Promise.reject(new Error('Network Error')));
 
     const config = {
       project: 'cool project',
@@ -97,13 +92,10 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Fluentd(config);
+    // Should not throw
+    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
 
-    return logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label')
-      .then(() => {
-        expect(superagent.post).toHaveBeenCalledTimes(1);
-        expect(superagent.post).toHaveBeenCalledWith(config.collectorUrl);
-        expect(sendRequest).toHaveBeenCalledTimes(1);
-        expect(endRequest).toHaveBeenCalledTimes(1);
-      });
+    expect(superagent.post).toHaveBeenCalledTimes(1);
+    expect(mockSend).toHaveBeenCalledTimes(1);
   });
 });

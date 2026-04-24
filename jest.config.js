@@ -6,6 +6,10 @@ export default {
   ],
   setupFilesAfterEnv: ['<rootDir>/testing/setup.js'],
   testEnvironment: 'node',
+  testPathIgnorePatterns: [
+    "<rootDir>/lib/",
+    "<rootDir>/node_modules/"
+  ],
   transform: {
     '^.+\\.jsx?$': 'babel-jest',
   },

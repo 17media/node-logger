@@ -1,4 +1,4 @@
-import { WebClient } from '@slack/client';
+import { WebClient } from '@slack/web-api';
 
 import Logger from './logger';
 import { hasAllKeys, formatLogLevel } from '../utils';
@@ -29,7 +29,7 @@ class SlackLogger extends Logger {
       hasAllKeys(this.config, requiredConfig);
   }
 
-  Log(level, message, label, logTime) {
+  async Log(level, message, label, logTime) {
     if (!this.slackClient) {
       this.slackClient = new WebClient(this.config.slackToken);
     }
@@ -54,7 +54,8 @@ class SlackLogger extends Logger {
       : `${project} - ${environment} - ${label}`;
 
     const messageOpts = {
-      as_user: true,
+      channel: slackChannel,
+      text: `[${formatLogLevel(level).toUpperCase()}] ${message.get('message')}`,
       attachments: [
         {
           color: formatLogLevelSlackColor(level),
@@ -71,13 +72,15 @@ class SlackLogger extends Logger {
       ],
     };
 
-    return this.slackClient.chat.postMessage(
-      Object.assign({
-        channel: slackChannel,
-        text: '',
-      }, messageOpts)
-    )
-      .catch(() => Promise.resolve());
+    try {
+      const result = await this.slackClient.chat.postMessage(messageOpts);
+      if (!result.ok) {
+        // Log to console if slack fails but don't crash
+        console.error(`Slack logging failed: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error sending message to Slack:', error);
+    }
   }
 }
 

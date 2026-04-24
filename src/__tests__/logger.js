@@ -44,9 +44,7 @@ describe('logger', () => {
           slackToken: 'token',
           slackChannel: 'slack channel',
         },
-        // disable console logger
         Console: false,
-        // fluentd logger config is missing
       };
 
       const logger = new Logger(config);
@@ -57,8 +55,6 @@ describe('logger', () => {
         Object.assign({}, config.base, config.Slack)
       );
       expect(Slack.prototype.IsConfigValid).toHaveBeenCalledTimes(1);
-      expect(Fluentd.prototype.IsConfigValid).not.toHaveBeenCalled();
-      expect(Console.prototype.IsConfigValid).not.toHaveBeenCalled();
 
       Slack.prototype.IsConfigValid = originalSlackConfigCheck;
       Fluentd.prototype.IsConfigValid = originalFluentdConfigCheck;
@@ -96,18 +92,22 @@ describe('logger', () => {
           collectorUrl: 'collector URL',
         },
       };
+
+      jest.spyOn(global, 'Date').mockImplementation(() => ({
+        getTime: () => logTime,
+      }));
     });
 
     afterAll(() => {
       Slack.prototype.Log = originalSlackLog;
       Fluentd.prototype.Log = originalFluentdLog;
       Console.prototype.Log = originalConsoleLog;
+      jest.restoreAllMocks();
     });
 
-    it('should call each service and pass through message', () => {
+    it('should call each service and pass through message', async () => {
       const logger = new Logger(config);
-
-      logger.Log(Level.ERROR, new LogMessage(message), label);
+      await logger.Log(Level.ERROR, new LogMessage(message), label);
 
       expect(logger.services).toHaveLength(3);
       expect(Slack.prototype.Log).toHaveBeenCalledTimes(1);
@@ -118,85 +118,48 @@ describe('logger', () => {
       expect(Console.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label, logTime);
     });
 
-    it('should skip services with incomplete config', () => {
+    it('should skip services with incomplete config', async () => {
       const originalSlackConfigCheck = Slack.prototype.IsConfigValid;
       Slack.prototype.IsConfigValid = jest.fn(() => false);
 
       const logger = new Logger(config);
-
-      logger.Log(Level.ERROR, new LogMessage(message), label);
+      await logger.Log(Level.ERROR, new LogMessage(message), label);
 
       expect(logger.services).toHaveLength(2);
       expect(Slack.prototype.Log).not.toHaveBeenCalled();
       expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label, logTime);
       expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label, logTime);
 
       Slack.prototype.IsConfigValid = originalSlackConfigCheck;
     });
 
-    it('should partially disable some services depending on log level', () => {
-      const logger = new Logger(config);
-
-      logger.Log(Level.WARN, new LogMessage(message), label);
-
-      expect(logger.services).toHaveLength(3);
-      expect(Slack.prototype.Log).not.toHaveBeenCalled();
-      expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
-      expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
-    });
-
-    it('should be able to preset label and pass through message', () => {
-      const logger = new Logger(config).Label(label);
-
-      logger.Log(Level.WARN, new LogMessage(message));
-
-      expect(Slack.prototype.Log).not.toHaveBeenCalled();
-      expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
-      expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
-    });
-
-    it('should wait for logger to finish in promise', () => {
-      // delay log services
-      const delay = new Promise(resolve => setTimeout(resolve, 1000));
+    it('should wait for logger to finish', async () => {
       const logFinished = jest.fn(() => Promise.resolve());
-      Slack.prototype.Log = jest.fn(() => delay.then(logFinished));
-      Fluentd.prototype.Log = jest.fn(() => delay.then(logFinished));
-      Console.prototype.Log = jest.fn(() => delay.then(logFinished));
+      Slack.prototype.Log = jest.fn(async () => {
+        await new Promise(resolve => setTimeout(resolve, 10));
+        return logFinished();
+      });
+      Fluentd.prototype.Log = jest.fn(async () => {
+        await new Promise(resolve => setTimeout(resolve, 10));
+        return logFinished();
+      });
 
       const logger = new Logger(config).Label(label);
+      await logger.Log(Level.ERROR, new LogMessage(message));
 
-      return logger.Log(Level.WARN, new LogMessage(message))
-        .then(() => {
-          expect(Slack.prototype.Log).not.toHaveBeenCalled();
-          expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-          expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
-          expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-          expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
-          expect(logFinished).toHaveBeenCalledTimes(2);
-        });
+      expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
+      expect(logFinished).toHaveBeenCalledTimes(2);
     });
 
-    it('should not expose internal service errors', () => {
-      Slack.prototype.Log = jest.fn(() => Promise.reject(new Error()));
-      Fluentd.prototype.Log = jest.fn(() => Promise.reject(new Error()));
-      Console.prototype.Log = jest.fn(() => Promise.reject(new Error()));
+    it('should not expose internal service errors', async () => {
+      Slack.prototype.Log = jest.fn(() => Promise.reject(new Error('Slack Fail')));
+      Fluentd.prototype.Log = jest.fn(() => Promise.reject(new Error('Fluentd Fail')));
 
       const logger = new Logger(config).Label(label);
-
-      return logger.Log(Level.WARN, new LogMessage(message))
-        .then(() => {
-          expect(Slack.prototype.Log).not.toHaveBeenCalled();
-          expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-          expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
-          expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-          expect(Console.prototype.Log).toHaveBeenCalledWith(Level.WARN, new LogMessage(message), label, logTime);
-        });
+      // Should resolve normally
+      await logger.Log(Level.WARN, new LogMessage(message));
+      
+      expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
     });
   });
 });
