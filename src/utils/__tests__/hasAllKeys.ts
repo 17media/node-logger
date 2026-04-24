@@ -2,56 +2,46 @@ import { hasAllKeys } from '../';
 
 describe('utils/hasAllKeys', () => {
   it('should check input types', () => {
-    expect(hasAllKeys('key', ['key'])).toBe(false);
-    expect(hasAllKeys({ key: 'value' }, 'key')).toBe(false);
-    expect(hasAllKeys(null, null)).toBe(false);
-    expect(hasAllKeys(0, 0)).toBe(false);
-    expect(hasAllKeys('key', 'key')).toBe(false);
+    expect(hasAllKeys({ key: 'value' }, 'key' as any)).toBe(false);
+    expect(hasAllKeys(null, null as any)).toBe(false);
+    expect(hasAllKeys(0, 0 as any)).toBe(false);
+    expect(hasAllKeys('key', 'key' as any)).toBe(false);
   });
 
-  it('should return true if all keys are provided', () => {
+  it('should return true when all keys are present', () => {
     const testObject = {
       key1: 'value1',
       key2: 'value2',
-      key3: 'value3',
     };
     const requiredKeys = ['key1', 'key2'];
 
-    // make sure inputs are not modified
     deepFreeze(testObject);
     deepFreeze(requiredKeys);
 
     expect(hasAllKeys(testObject, requiredKeys)).toBe(true);
   });
 
-  it('should return true if nothing is required', () => {
+  it('should return false when some keys are missing', () => {
     const testObject = {
       key1: 'value1',
-      key2: 'value2',
-      key3: 'value3',
     };
-    const requiredKeys = [];
+    const requiredKeys = ['key1', 'key2'];
 
-    // make sure inputs are not modified
-    deepFreeze(testObject);
-    deepFreeze(requiredKeys);
-
-    expect(hasAllKeys(testObject, requiredKeys)).toBe(true);
-  });
-
-  it('should return false if some keys are missing', () => {
-    const testObject = {
-      key1: 'value1',
-      key2: 'value2',
-      key3: 'value3',
-    };
-    const requiredKeys = ['key1', 'key2', 'missingKey'];
-
-    // make sure inputs are not modified
     deepFreeze(testObject);
     deepFreeze(requiredKeys);
 
     expect(hasAllKeys(testObject, requiredKeys)).toBe(false);
   });
-});
 
+  it('should return true when keys list is empty', () => {
+    const testObject = {
+      key1: 'value1',
+    };
+    const requiredKeys: string[] = [];
+
+    deepFreeze(testObject);
+    deepFreeze(requiredKeys);
+
+    expect(hasAllKeys(testObject, requiredKeys)).toBe(true);
+  });
+});

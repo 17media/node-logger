@@ -48,11 +48,11 @@ describe('utils/flattenObject', () => {
   });
 
   it('should remove circular references', () => {
-    const obj1 = {
+    const obj1: any = {
       key1: '11',
     };
 
-    const obj2 = {
+    const obj2: any = {
       key1: '21',
       deeper: {
         obj1,

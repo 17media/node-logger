@@ -1,12 +1,14 @@
 import * as services from './service';
 import Level from './enum/level';
-import { LogLevel, LogMessageInterface, LoggerConfig } from './types';
+import { LogLevel, LogMessageInterface, LoggerConfig, BaseLoggerConfig } from './types';
 import Logger from './service/logger';
 
 const { LOG_LEVEL } = process.env;
 
+type LevelKey = keyof typeof Level;
+
 class MasterLogger {
-  public services: Logger[];
+  public services: Logger<BaseLoggerConfig>[];
 
   constructor(config: LoggerConfig) {
     if (config === null || typeof config !== 'object' || Array.isArray(config)) {
@@ -14,22 +16,24 @@ class MasterLogger {
     }
 
     this.services = (Object.keys(services) as Array<keyof typeof services>)
-    // filter out missing configs
-    .filter(key => (config as any)[key])
-    // merge base and service config
-    .map(key => {
-      const serviceConfig = Object.assign(
-        {},
-        config.base,
-        (config as any)[key],
-        // override log level if specified by environment variable
-        LOG_LEVEL ? { logLevel: (Level as any)[LOG_LEVEL] } : {}
-      );
-      
-      return new services[key](serviceConfig);
-    })
-    // filter out services with invalid configs
-    .filter(service => service.IsConfigValid());
+      // filter out missing configs
+      .filter((key) => !!config[key])
+      // merge base and service config
+      .map((key) => {
+        const envLogLevel = LOG_LEVEL && (Level as Record<string, LogLevel>)[LOG_LEVEL];
+        
+        const serviceConfig = Object.assign(
+          {},
+          config.base,
+          config[key],
+          // override log level if specified by environment variable
+          envLogLevel !== undefined ? { logLevel: envLogLevel } : {}
+        ) as any;
+
+        return new (services[key] as any)(serviceConfig);
+      })
+      // filter out services with invalid configs
+      .filter((service) => service.IsConfigValid());
   }
 
   // wrap Log function and reuse label

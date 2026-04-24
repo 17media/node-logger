@@ -32,7 +32,7 @@ function formatMessage(message: string, maxLine?: number) {
     .join('\n');
 }
 
-class SlackLogger extends Logger {
+class SlackLogger extends Logger<SlackLoggerConfig> {
   private slackClient?: WebClient;
 
   IsConfigValid(): boolean {
@@ -50,7 +50,7 @@ class SlackLogger extends Logger {
       environment,
       slackChannel,
       options,
-    } = this.config as SlackLoggerConfig;
+    } = this.config;
 
     const {
       fields,

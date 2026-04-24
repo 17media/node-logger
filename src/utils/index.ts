@@ -2,7 +2,7 @@ import { LogMessageInterface } from '../types';
 
 const formatLogLevel = (level: number): string => ['debug', 'info', 'warn', 'error', 'fatal'][level] || 'all';
 
-const flattenObject = (source: any, prefix = '', maxDepth = 10): Record<string, any> => {
+const flattenObject = (source: unknown, prefix = '', maxDepth = 10): Record<string, any> => {
   const result: Record<string, any> = {};
   const stack: Array<{ obj: any, path: string, depth: number }> = [{ obj: source, path: prefix, depth: 0 }];
   const seen = new Set();
@@ -34,7 +34,7 @@ const flattenObject = (source: any, prefix = '', maxDepth = 10): Record<string, 
     for (let i = keys.length - 1; i >= 0; i--) {
       const key = keys[i];
       stack.push({
-        obj: obj[key],
+        obj: (obj as any)[key],
         path: path ? `${path}.${key}` : key,
         depth: depth + 1,
       });
@@ -44,19 +44,26 @@ const flattenObject = (source: any, prefix = '', maxDepth = 10): Record<string, 
   return result;
 };
 
-const hasAllKeys = (testObject: any, keys: string[]): boolean => {
+const hasAllKeys = (testObject: unknown, keys: string[]): boolean => {
   if (testObject === null || typeof testObject !== 'object' || !Array.isArray(keys)) {
     return false;
   }
 
-  return keys.reduce((result, key) => result && Object.prototype.hasOwnProperty.call(testObject, key), true);
+  const obj = testObject as Record<string, any>;
+  return keys.reduce((result, key) => result && Object.prototype.hasOwnProperty.call(obj, key), true);
 };
 
 // check if testLogMessage implements all interfaces of LogMessage
-const isLogMessage = (testLogMessage: any): testLogMessage is LogMessageInterface => !!testLogMessage
-  && typeof testLogMessage.toString === 'function'
-  && typeof testLogMessage.toObject === 'function'
-  && typeof testLogMessage.get === 'function';
+const isLogMessage = (testLogMessage: unknown): testLogMessage is LogMessageInterface => {
+  if (!testLogMessage || typeof testLogMessage !== 'object') {
+    return false;
+  }
+  
+  const candidate = testLogMessage as Record<string, any>;
+  return typeof candidate.toString === 'function'
+    && typeof candidate.toObject === 'function'
+    && typeof candidate.get === 'function';
+};
 
 export {
   flattenObject,

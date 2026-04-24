@@ -183,7 +183,7 @@ describe('logger', () => {
       logger.services.push(anonymousService as any);
 
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message));
+      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message), label);
 
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[MasterLogger] Service "Service" failed to log:'), expect.any(Error));
       

@@ -8,7 +8,7 @@ const requiredConfig = [
   'collectorUrl',
 ];
 
-class FluentdLogger extends Logger {
+class FluentdLogger extends Logger<FluentdLoggerConfig> {
   IsConfigValid(): boolean {
     return super.IsConfigValid() &&
       hasAllKeys(this.config, requiredConfig);
@@ -19,7 +19,7 @@ class FluentdLogger extends Logger {
       project,
       environment,
       collectorUrl,
-    } = this.config as FluentdLoggerConfig;
+    } = this.config;
 
     const fluentdObject = Object.assign({}, message.toObject(), {
       project,

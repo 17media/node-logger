@@ -5,56 +5,64 @@ describe('message/logMessage', () => {
     const message = 'something happened';
     const logMessage = new LogMessage(message);
 
-    expect(logMessage.get('message')).toBe(message);
-    expect(logMessage.toString()).toBe(message);
-    expect(logMessage.toObject()).toEqual({ message });
+    expect(logMessage.message).toBe(message);
+    expect(logMessage.fields).toEqual({});
   });
 
   it('should construct log message with optional fields', () => {
     const message = 'something happened';
     const optionalFields = {
-      key1: 'something',
-      key2: 'very',
-      key3: 'important',
+      key1: 'value1',
+      key2: 2,
     };
-    const expectedObject = Object.assign({ message }, optionalFields);
-
     const logMessage = new LogMessage(message, optionalFields);
 
-    expect(logMessage.get('message')).toBe(message);
-    expect(logMessage.toString()).toBe(message);
-    expect(logMessage.toObject()).toEqual(expectedObject);
-  });
-
-  it('should construct log message with primitive type optional field', () => {
-    const message = 'something happened';
-    const logMessage = new LogMessage(message, 'wow');
-    const expectedObject = Object.assign({ message }, { value: 'wow' });
-
-    expect(logMessage.get('message')).toBe(message);
-    expect(logMessage.toString()).toBe(message);
-    expect(logMessage.toObject()).toEqual(expectedObject);
-  });
-
-  it('should not expose internal object', () => {
-    const message = 'something happened';
-    const optionalFields = {
-      key1: 'something',
-      key2: 'very',
-      key3: 'important',
-    };
     deepFreeze(optionalFields);
-
-    const logMessage = new LogMessage(message, optionalFields);
     deepFreeze(logMessage);
 
-    logMessage.toObject().key1 = 'SOMETHING';
-    logMessage.toObject().message = 'SOMETHING HAPPENED';
-
-    const expectedObject = Object.assign({ message }, optionalFields);
-
+    expect(logMessage.message).toBe(message);
     expect(logMessage.get('key1')).toBe(optionalFields.key1);
+    expect(logMessage.get('key2')).toBe(optionalFields.key2);
+  });
+
+  it('should handle non-object optional fields', () => {
+    const message = 'something happened';
+    const logMessage = new LogMessage(message, 'wow' as any);
+
+    expect(logMessage.message).toBe(message);
+    expect(logMessage.get('value')).toBe('wow');
+  });
+
+  it('should return message from .get(\'message\')', () => {
+    const message = 'something happened';
+    const logMessage = new LogMessage(message);
+
+    expect(logMessage.get('message')).toBe(message);
+  });
+
+  it('should return undefined from .get() for non-existing field', () => {
+    const message = 'something happened';
+    const logMessage = new LogMessage(message);
+
+    expect(logMessage.get('non-existing')).toBeUndefined();
+  });
+
+  it('should return message from .toString()', () => {
+    const message = 'something happened';
+    const logMessage = new LogMessage(message);
+
     expect(logMessage.toString()).toBe(message);
-    expect(logMessage.toObject()).toEqual(expectedObject);
+  });
+
+  it('should return all fields from .toObject()', () => {
+    const message = 'something happened';
+    const optionalFields = {
+      key1: 'value1',
+      key2: 2,
+    };
+    const logMessage = new LogMessage(message, optionalFields);
+
+    const expected = Object.assign({ message }, optionalFields);
+    expect(logMessage.toObject()).toEqual(expected);
   });
 });

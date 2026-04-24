@@ -1,7 +1,8 @@
-import superagent from 'superagent';
+import request from 'superagent';
 import { LogMessage } from '../../message';
 import { Fluentd } from '../';
 import Level from '../../enum/level';
+import { LogLevel } from '../../types';
 
 // Mock the entire superagent module
 jest.mock('superagent', () => {
@@ -9,19 +10,22 @@ jest.mock('superagent', () => {
   const postRequest = jest.fn(() => ({
     send: sendRequest,
     // Modern superagent is a promise, so we should support .then()
-    then: (resolve) => resolve({ ok: true }),
+    then: (resolve: any) => resolve({ ok: true }),
   }));
   return {
     post: postRequest,
+    default: {
+      post: postRequest,
+    },
   };
 });
 
 describe('service/fluentd', () => {
-  let mockSend;
+  let mockSend: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSend = superagent.post().send;
+    mockSend = (request.post as jest.Mock)('url').send;
     jest.clearAllMocks();
   });
 
@@ -42,7 +46,7 @@ describe('service/fluentd', () => {
       environment: 'production',
     };
 
-    const logger = new Fluentd(config);
+    const logger = new Fluentd(config as any);
     expect(logger.IsConfigValid()).toBe(false);
   });
 
@@ -54,10 +58,10 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Fluentd(config);
-    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+    await logger.Log(Level.ERROR as LogLevel, new LogMessage('something happened'), 'some:label', Date.now());
 
-    expect(superagent.post).toHaveBeenCalledTimes(1);
-    expect(superagent.post).toHaveBeenCalledWith(config.collectorUrl);
+    expect(request.post).toHaveBeenCalledTimes(1);
+    expect(request.post).toHaveBeenCalledWith(config.collectorUrl);
     expect(mockSend).toHaveBeenCalledTimes(1);
   });
 
@@ -73,9 +77,9 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Fluentd(config);
-    await logger.Log(Level.ERROR, new LogMessage('something happened', additionalInfo), 'some:label');
+    await logger.Log(Level.ERROR as LogLevel, new LogMessage('something happened', additionalInfo), 'some:label', Date.now());
 
-    expect(superagent.post).toHaveBeenCalledTimes(1);
+    expect(request.post).toHaveBeenCalledTimes(1);
     expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({
       object_key_key2: 'value',
       key_not_affected: 'value2',
@@ -93,9 +97,9 @@ describe('service/fluentd', () => {
 
     const logger = new Fluentd(config);
     // Should not throw
-    await logger.Log(Level.ERROR, new LogMessage('something happened'), 'some:label');
+    await logger.Log(Level.ERROR as LogLevel, new LogMessage('something happened'), 'some:label', Date.now());
 
-    expect(superagent.post).toHaveBeenCalledTimes(1);
+    expect(request.post).toHaveBeenCalledTimes(1);
     expect(mockSend).toHaveBeenCalledTimes(1);
   });
 });

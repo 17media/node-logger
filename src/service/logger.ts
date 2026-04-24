@@ -1,6 +1,6 @@
 import Level from '../enum/level';
 import { hasAllKeys } from '../utils';
-import { LogLevel, LogMessageInterface } from '../types';
+import { LogLevel, LogMessageInterface, BaseLoggerConfig } from '../types';
 
 const requiredConfig = [
   'project',
@@ -13,11 +13,11 @@ const baseConfig = {
 };
 
 // abstract base class for different logging services
-abstract class Logger {
-  protected config: any;
+abstract class Logger<T extends BaseLoggerConfig = BaseLoggerConfig> {
+  protected config: T;
 
-  constructor(config: any) {
-    this.config = Object.assign({}, baseConfig, config);
+  constructor(config: T) {
+    this.config = Object.assign({}, baseConfig, config) as T;
   }
 
   IsConfigValid(): boolean {
@@ -25,7 +25,7 @@ abstract class Logger {
   }
 
   ShouldLog(level: LogLevel): boolean {
-    return level >= this.config.logLevel;
+    return level >= (this.config.logLevel ?? Level.INFO);
   }
 
   // this function must be implemented by individual service
