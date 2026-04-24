@@ -1,7 +1,2 @@
-import LogMessage from './logMessage';
-import ErrorMessage from './errorMessage';
-
-export {
-  LogMessage,
-  ErrorMessage,
-};
+export { default as LogMessage } from './logMessage';
+export { default as ErrorMessage } from './errorMessage';
