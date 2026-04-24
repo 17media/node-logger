@@ -52,7 +52,6 @@
   ],
   "dependencies": {
     "@slack/web-api": "^7.15.1",
-    "lodash": "^4.18.1",
     "superagent": "^10.3.0"
   },
   "devDependencies": {

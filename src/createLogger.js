@@ -1,4 +1,3 @@
-import isError from 'lodash/isError';
 import Logger from './logger';
 import { isLogMessage } from './utils';
 import { LogMessage, ErrorMessage } from './message';
@@ -16,7 +15,7 @@ const createLogger = (config) => {
       if (args.length === 1 && isLogMessage(args[0])) {
         // custom extended log message
         message = args[0];
-      } else if (args.find(isError)) {
+      } else if (args.find(arg => arg instanceof Error)) {
         // error message
         message = new ErrorMessage(...args);
       } else {

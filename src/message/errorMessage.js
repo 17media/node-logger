@@ -1,4 +1,3 @@
-import { isError } from 'lodash';
 import { flattenObject } from '../utils';
 import LogMessage from './logMessage';
 
@@ -7,7 +6,7 @@ class ErrorMessage extends LogMessage {
     super(message, fields);
 
     const error =
-      isError(err) ? err : new Error(JSON.stringify(flattenObject(err)));
+      err instanceof Error ? err : new Error(JSON.stringify(flattenObject(err)));
 
     Object.assign(this.fields, {
       error: `${error.name}: ${error.message}`,

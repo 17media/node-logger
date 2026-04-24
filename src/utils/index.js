@@ -1,8 +1,6 @@
-import { has, isArray, isFunction, isObject } from 'lodash';
-
 const flattenObject = (source, prefix = '', refSet = new Set()) => {
   // if type or source is primitive, return value directly
-  if (!isObject(source)) {
+  if (source === null || (typeof source !== 'object' && typeof source !== 'function')) {
     return { [prefix || 'value']: source };
   }
 
@@ -26,21 +24,20 @@ const flattenObject = (source, prefix = '', refSet = new Set()) => {
 };
 
 const hasAllKeys = (testObject, keys) => {
-  if (!isObject(testObject) || !isArray(keys)) {
+  if (testObject === null || typeof testObject !== 'object' || !Array.isArray(keys)) {
     return false;
   }
 
-  return keys.reduce((result, key) => result && has(testObject, key), true);
+  return keys.reduce((result, key) => result && Object.hasOwn(testObject, key), true);
 };
 
 const formatLogLevel = level => ['debug', 'info', 'warn', 'error', 'fatal'][level];
 
 // check if testLogMessage implements all interfaces of LogMessage
 const isLogMessage = testLogMessage => !!testLogMessage
-  && isObject(testLogMessage.toString)
-  && isFunction(testLogMessage.toString)
-  && isFunction(testLogMessage.toObject)
-  && isFunction(testLogMessage.get);
+  && typeof testLogMessage.toString === 'function'
+  && typeof testLogMessage.toObject === 'function'
+  && typeof testLogMessage.get === 'function';
 
 export {
   flattenObject,
