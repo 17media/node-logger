@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Stricter Type Checking**: Enabled `strict` mode in TypeScript for the entire codebase.
 
 ### Removed
-- **Zero Dependencies**: Removed `lodash` and `deep-freeze` from dependencies.
+- **Zero Dependencies**: Removed `lodash`, `superagent`, and `deep-freeze` from dependencies. The library now uses native `fetch` and built-in JavaScript features for maximum performance and minimum size.
 - **Legacy index.d.ts**: Removed manually maintained declaration file.
 
 ### Fixed
