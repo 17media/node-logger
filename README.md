@@ -1,105 +1,93 @@
-# node-logger [![CircleCI](https://circleci.com/gh/17media/node-logger/tree/master.svg?style=shield)](https://circleci.com/gh/17media/node-logger/tree/master) [![npm (scoped)](https://img.shields.io/npm/v/@17media/node-logger.svg)]() [![Coverage Status](https://coveralls.io/repos/github/17media/node-logger/badge.svg?branch=master)](https://coveralls.io/github/17media/node-logger?branch=master)
-Centralized logger for 17.Media Node.JS projects
+# node-logger v3.0.0 🚀
+
+[![npm (scoped)](https://img.shields.io/npm/v/@17media/node-logger.svg)]()
+[![Coverage Status](https://coveralls.io/repos/github/17media/node-logger/badge.svg?branch=master)](https://coveralls.io/github/17media/node-logger?branch=master)
+
+[繁體中文版](./README.zh-TW.md)
+
+Centralized logger for 17.Media Node.JS projects.
 
 > ... in the fires of Mount Doom, the dark lord Sauron forged, in secret, a **master logger** to control all others.<br>
 > **"One logger to log them all!"**
 >
 > ![](https://i0.wp.com/media2.slashfilm.com/slashfilm/wp/wp-content/images/lordoftherings-ring-map.jpg)
 
-## Usage
+## ✨ v3.0.0 Highlights
+- **100% TypeScript**: Built-in types for perfect IDE autocomplete and type safety.
+- **Modern Async**: Native `async/await` support for all logging tasks.
+- **Zero Dependencies**: Lightweight and secure by removing lodash and other external libraries.
+- **Industrial Stability**: 
+  - **Timeout Protection**: Auto-discard tasks taking longer than 10s (e.g., Slack/Fluentd hangs).
+  - **Recursion Safety**: Optimized iterative `flattenObject` with circular reference and max-depth protection.
+- **100% Test Coverage**: Every logic path is verified by unit tests.
 
-First of all you have to set up your configs:
-```js
-import { Level } from '@17media/node-logger';
+## 📦 Installation
+
+```bash
+yarn add @17media/node-logger
+```
+
+## 🛠 Configuration
+
+```typescript
+import { createLogger, Level } from '@17media/node-logger';
 
 const loggerConfig = {
-  // configs shared by all log services
+  // Shared configs
   base: {
-    // minimum level to trigger logger [ERROR|WARN|INFO|DEBUG]
-    // levels lower than this will not be logged
-    // it can be overridden in each service specific config
-    logLevel: Level.INFO,
-
-    // project name, preferably 'name' from package.json
-    project: require('~/package.json').name,
-
-    // environment [production|stage|development]
+    project: 'my-app',
     environment: 'production',
+    logLevel: Level.INFO, // default level
   },
-
-  // configs for slack
+  // Slack service
   Slack: {
-    // override minimum log level (optional)
-    logLevel: Level.WARN,
-
-    // slack bot access token
-    slackToken: SLACK_BOT_TOKEN,
-
-    // slack channel to log messages to
-    slackChannel: SLACK_BOT_ALERT_CHANNEL,
+    slackToken: 'xoxb-xxx',
+    slackChannel: '#alerts',
+    logLevel: Level.ERROR, // Override for Slack
   },
-
-  // configs for log collecting service (fluentD)
+  // Fluentd service
   Fluentd: {
-    // override minimum log level (optional)
-    logLevel: Level.INFO,
-
-    // log collector URL
-    collectorUrl: LOG_COLLECTOR_URL,
+    collectorUrl: 'http://localhost:24224',
   },
-
-  // configs for logging to console
-  Console: {
-    // override minimum log level (optional)
-    logLevel: Level.ERROR,
-  },
+  // Console service
+  Console: true,
 };
 ```
 
-Then, there are two ways to continue, **the easy way** and **the complete way**:
+## 🚀 Usage
 
-### Easy Way
+### The Easy Way (Recommended)
 
-This is the simple way and should cover ~90% of the use cases.
-```js
-const logger = require('@17media/node-logger').createLogger(loggerConfig)('some:label');
+```typescript
+const logger = createLogger(loggerConfig)('auth-module');
 
-logger.debug('track the variable value during development', { info });
-logger.info('somehing worth logging for future reference', { additionalInfo });
-logger.warn('somehing worth notice', { additionalInfo });
-logger.error('somehing terrible happened', new Error());
-logger.fatal('somehing disastrous happened', new Error(), { additionalInfo });
+await logger.info('User logged in', { userId: 123 });
+await logger.error('DB connection failed', new Error('Timeout'));
 ```
 
-### Complete Way
+### The Complete Way (Custom Message)
 
-Provide configs to initiate the logger:<br>
-A log service will be used only when all corresponding configs are provided.
-```js
-const { Logger } = require('@17media/node-logger');
+```typescript
+import { Logger, LogMessage, ErrorMessage } from '@17media/node-logger';
+
 const logger = new Logger(loggerConfig);
-```
 
-Use the logger like:
-```js
-const { LogMessage } = require('@17media/node-logger');
-
-logger.Log(
-  Level.WARN,
-  new LogMessage('something happened', { additionalInfo }),
-  'some:label:for:the:message'
+// Log with specific message object
+await logger.Log(
+  Level.WARN, 
+  new LogMessage('Something happened', { detail: '...' }), 
+  'custom-label'
 );
 ```
 
-In most situations you would want to pre-label all the messages logged in a file.<br>
-You can do it by:
-```js
-const labelledLogger = logger.Label('path:to:this:file');
+## ⚙️ Environment Variable
 
-labelledLogger.Log(
-  Level.WARN,
-  new LogMessage('something happened', { additionalInfo })
-);
+Override log levels dynamically using the `LOG_LEVEL` environment variable (case-insensitive):
+
+```bash
+LOG_LEVEL=DEBUG node app.js
 ```
 
-You can extend `LogMessage` and `ErrorMessage` to create customized formatting for your context.
+## 🛡 Security Features
+- **Circular Reference Detection**: Automatically marks objects as `[Circular Reference]`.
+- **Max Depth Protection**: Default limit is 10 levels, marks as `[Max Depth Reached]` beyond that.
