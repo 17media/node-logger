@@ -37,11 +37,28 @@ class MasterLogger {
 
   async Log(level, message, label) {
     const logTime = new Date().getTime();
+    
     const tasks = this.services
       // filter by log level
       .filter(service => service.ShouldLog(level))
-      // initiate log service
-      .map(service => service.Log(level, message, label, logTime));
+      // initiate log service with timeout protection
+      .map(service => {
+        const serviceName = service.constructor.name || 'Service';
+        let timeoutId;
+        
+        const timeoutPromise = new Promise((_, reject) => {
+          timeoutId = setTimeout(() => {
+            reject(new Error(`Logging timeout after 10000ms for ${serviceName}`));
+          }, 10000);
+        });
+
+        return Promise.race([
+          service.Log(level, message, label, logTime),
+          timeoutPromise,
+        ]).finally(() => {
+          clearTimeout(timeoutId);
+        });
+      });
 
     const results = await Promise.allSettled(tasks);
     

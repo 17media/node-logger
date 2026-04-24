@@ -166,5 +166,22 @@ describe('logger', () => {
       
       consoleSpy.mockRestore();
     });
+
+    it('should handle service failure even if service name is missing', async () => {
+      const logger = new Logger(config);
+      // 手動注入一個匿名物件作為服務，模擬極端情況
+      logger.services.push({
+        ShouldLog: () => true,
+        Log: () => Promise.reject(new Error('Anonymous Fail')),
+        IsConfigValid: () => true,
+      });
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      await logger.Log(Level.ERROR, new LogMessage(message));
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[MasterLogger] Service "Object" failed to log:'), expect.any(Error));
+      
+      consoleSpy.mockRestore();
+    });
   });
 });
