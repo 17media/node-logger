@@ -154,12 +154,17 @@ describe('logger', () => {
     it('should not expose internal service errors', async () => {
       Slack.prototype.Log = jest.fn(() => Promise.reject(new Error('Slack Fail')));
       Fluentd.prototype.Log = jest.fn(() => Promise.reject(new Error('Fluentd Fail')));
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
       const logger = new Logger(config).Label(label);
       // Should resolve normally
-      await logger.Log(Level.WARN, new LogMessage(message));
+      await logger.Log(Level.ERROR, new LogMessage(message));
       
       expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[MasterLogger] Service "SlackLogger" failed to log:'), expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[MasterLogger] Service "FluentdLogger" failed to log:'), expect.any(Error));
+      
+      consoleSpy.mockRestore();
     });
   });
 });
