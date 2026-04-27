@@ -58,7 +58,12 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Fluentd(config);
-    await logger.Log(Level.ERROR as LogLevel, new LogMessage('something happened'), 'some:label', Date.now());
+    await logger.Log(
+      Level.ERROR as LogLevel,
+      new LogMessage('something happened'),
+      'some:label',
+      Date.now()
+    );
 
     expect(request.post).toHaveBeenCalledTimes(1);
     expect(request.post).toHaveBeenCalledWith(config.collectorUrl);
@@ -77,17 +82,26 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Fluentd(config);
-    await logger.Log(Level.ERROR as LogLevel, new LogMessage('something happened', additionalInfo), 'some:label', Date.now());
+    await logger.Log(
+      Level.ERROR as LogLevel,
+      new LogMessage('something happened', additionalInfo),
+      'some:label',
+      Date.now()
+    );
 
     expect(request.post).toHaveBeenCalledTimes(1);
-    expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({
-      object_key_key2: 'value',
-      key_not_affected: 'value2',
-    }));
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        object_key_key2: 'value',
+        key_not_affected: 'value2',
+      })
+    );
   });
 
   it('should not expose internal service error', async () => {
-    mockSend.mockImplementationOnce(() => Promise.reject(new Error('Network Error')));
+    mockSend.mockImplementationOnce(() =>
+      Promise.reject(new Error('Network Error'))
+    );
 
     const config = {
       project: 'cool project',
@@ -97,7 +111,12 @@ describe('service/fluentd', () => {
 
     const logger = new Fluentd(config);
     // Should not throw
-    await logger.Log(Level.ERROR as LogLevel, new LogMessage('something happened'), 'some:label', Date.now());
+    await logger.Log(
+      Level.ERROR as LogLevel,
+      new LogMessage('something happened'),
+      'some:label',
+      Date.now()
+    );
 
     expect(request.post).toHaveBeenCalledTimes(1);
     expect(mockSend).toHaveBeenCalledTimes(1);
