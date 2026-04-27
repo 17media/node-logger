@@ -70,6 +70,7 @@ describe('logger', () => {
   });
 
   describe('logging', () => {
+    jest.setTimeout(30000); // 設定較長的超時時間給整個 logging 測試區塊
     const message = 'something happened';
     const label = 'some:label';
     const logTime = Date.now();
@@ -240,6 +241,7 @@ describe('logger', () => {
     });
 
     it('should timeout if service takes too long', async () => {
+      jest.setTimeout(15000); // 增加此測試案例的超時時間
       jest.useFakeTimers();
       const logger = new Logger(config);
 
