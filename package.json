@@ -37,7 +37,7 @@
   "author": "17media",
   "license": "MIT",
   "engines": {
-    "node": ">=24.15.0"
+    "node": ">=18.0.0"
   },
   "bugs": {
     "url": "https://github.com/17media/node-logger/issues"
