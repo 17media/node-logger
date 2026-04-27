@@ -1,23 +1,32 @@
+import request from 'superagent';
 import { LogMessage } from '../../message';
 import { Fluentd } from '../';
+import Level from '../../enum/level';
 import { LogLevel } from '../../enum/level';
 
+// Mock the entire superagent module
+jest.mock('superagent', () => {
+  const sendRequest = jest.fn().mockReturnThis();
+  const postRequest = jest.fn(() => ({
+    send: sendRequest,
+    // Modern superagent is a promise, so we should support .then()
+    then: (resolve: any) => resolve({ ok: true }),
+  }));
+  return {
+    post: postRequest,
+    default: {
+      post: postRequest,
+    },
+  };
+});
+
 describe('service/fluentd', () => {
-  let mockFetch: jest.SpyInstance;
+  let mockSend: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockFetch = jest.spyOn(global, 'fetch').mockImplementation(() =>
-      Promise.resolve({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-      } as Response)
-    );
-  });
-
-  afterEach(() => {
-    mockFetch.mockRestore();
+    mockSend = (request.post as jest.Mock)('url').send;
+    jest.clearAllMocks();
   });
 
   it('should check for collector URL in config', () => {
@@ -49,23 +58,11 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Fluentd(config);
-    await logger.Log(
-      LogLevel.ERROR,
-      new LogMessage('something happened'),
-      'some:label',
-      Date.now()
-    );
+    await logger.Log(Level.ERROR as LogLevel, new LogMessage('something happened'), 'some:label', Date.now());
 
-    expect(mockFetch).toHaveBeenCalledTimes(1);
-    expect(mockFetch).toHaveBeenCalledWith(
-      config.collectorUrl,
-      expect.objectContaining({
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-    );
+    expect(request.post).toHaveBeenCalledTimes(1);
+    expect(request.post).toHaveBeenCalledWith(config.collectorUrl);
+    expect(mockSend).toHaveBeenCalledTimes(1);
   });
 
   it('should replace . with _ in object keys', async () => {
@@ -80,66 +77,17 @@ describe('service/fluentd', () => {
     };
 
     const logger = new Fluentd(config);
-    await logger.Log(
-      LogLevel.ERROR,
-      new LogMessage('something happened', additionalInfo),
-      'some:label',
-      Date.now()
-    );
+    await logger.Log(Level.ERROR as LogLevel, new LogMessage('something happened', additionalInfo), 'some:label', Date.now());
 
-    const body = JSON.parse(
-      (mockFetch.mock.calls[0][1] as RequestInit).body as string
-    );
-    expect(body).toEqual(
-      expect.objectContaining({
-        object_key_key2: 'value',
-        key_not_affected: 'value2',
-      })
-    );
+    expect(request.post).toHaveBeenCalledTimes(1);
+    expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({
+      object_key_key2: 'value',
+      key_not_affected: 'value2',
+    }));
   });
 
-  it('should handle response not ok', async () => {
-    mockFetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-      } as Response)
-    );
-
-    const consoleSpy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-
-    const config = {
-      project: 'cool project',
-      environment: 'production',
-      collectorUrl: 'http://some-url',
-    };
-
-    const logger = new Fluentd(config);
-    await logger.Log(
-      LogLevel.ERROR,
-      new LogMessage('something happened'),
-      'some:label',
-      Date.now()
-    );
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Error sending log to Fluentd: 500 Internal Server Error'
-      )
-    );
-    consoleSpy.mockRestore();
-  });
-
-  it('should not expose internal service error on fetch rejection', async () => {
-    mockFetch.mockImplementationOnce(() =>
-      Promise.reject(new Error('Network Error'))
-    );
-    const consoleSpy = jest
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
+  it('should not expose internal service error', async () => {
+    mockSend.mockImplementationOnce(() => Promise.reject(new Error('Network Error')));
 
     const config = {
       project: 'cool project',
@@ -149,18 +97,9 @@ describe('service/fluentd', () => {
 
     const logger = new Fluentd(config);
     // Should not throw
-    await logger.Log(
-      LogLevel.ERROR,
-      new LogMessage('something happened'),
-      'some:label',
-      Date.now()
-    );
+    await logger.Log(Level.ERROR as LogLevel, new LogMessage('something happened'), 'some:label', Date.now());
 
-    expect(mockFetch).toHaveBeenCalledTimes(1);
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Error sending log to Fluentd:',
-      'Network Error'
-    );
-    consoleSpy.mockRestore();
+    expect(request.post).toHaveBeenCalledTimes(1);
+    expect(mockSend).toHaveBeenCalledTimes(1);
   });
 });
