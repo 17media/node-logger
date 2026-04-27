@@ -52,18 +52,22 @@
     "LICENSE"
   ],
   "dependencies": {
-    "@slack/web-api": "^7.15.1"
+    "@babel/runtime-corejs3": "^7.29.2",
+    "@slack/web-api": "^7.15.1",
+    "superagent": "^10.3.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
     "@babel/core": "^7.12.3",
     "@babel/eslint-parser": "^7.12.1",
+    "@babel/plugin-transform-runtime": "^7.29.0",
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-typescript": "^7.28.5",
     "@eslint/eslintrc": "^3.0.0",
     "@eslint/js": "^9.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
+    "@types/superagent": "^8.1.9",
     "babel-jest": "^30.3.0",
     "coveralls-next": "^6.0.1",
     "eslint": "^9.0.0",

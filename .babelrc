@@ -4,10 +4,18 @@
       "@babel/preset-env",
       {
         "targets": {
-          "node": "24"
+          "node": "10.13.0"
         }
       }
     ],
     "@babel/preset-typescript"
+  ],
+  "plugins": [
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "corejs": 3
+      }
+    ]
   ]
 }
