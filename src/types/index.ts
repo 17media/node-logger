@@ -1,12 +1,4 @@
-export enum LogLevel {
-  ALL = -1,
-  DEBUG = 0,
-  INFO = 1,
-  WARN = 2,
-  ERROR = 3,
-  FATAL = 4,
-  OFF = 5,
-}
+import { LogLevel } from '../enum/level';
 
 export interface OptionalLoggerConfig {
   logLevel?: LogLevel;

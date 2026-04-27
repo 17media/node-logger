@@ -2,12 +2,10 @@ import { WebClient } from '@slack/web-api';
 
 import Logger from './logger';
 import { hasAllKeys, formatLogLevel } from '../utils';
-import { LogLevel, LogMessageInterface, SlackLoggerConfig } from '../types';
+import { LogMessageInterface, SlackLoggerConfig } from '../types';
+import { LogLevel } from '../enum/level';
 
-const requiredConfig = [
-  'slackToken',
-  'slackChannel',
-];
+const requiredConfig = ['slackToken', 'slackChannel'];
 
 function formatLogLevelSlackColor(logLevel: LogLevel) {
   // map LogLevel enum to slack colors
@@ -26,42 +24,31 @@ function formatMessage(message: string, maxLine?: number) {
     return message;
   }
 
-  return message
-    .split('\n')
-    .slice(0, maxLine)
-    .join('\n');
+  return message.split('\n').slice(0, maxLine).join('\n');
 }
 
 class SlackLogger extends Logger<SlackLoggerConfig> {
   private slackClient?: WebClient;
 
   IsConfigValid(): boolean {
-    return super.IsConfigValid() &&
-      hasAllKeys(this.config, requiredConfig);
+    return super.IsConfigValid() && hasAllKeys(this.config, requiredConfig);
   }
 
-  async Log(level: LogLevel, message: LogMessageInterface, label: string, logTime: number): Promise<void> {
+  async Log(
+    level: LogLevel,
+    message: LogMessageInterface,
+    label: string,
+    logTime: number
+  ): Promise<void> {
     if (!this.slackClient) {
       this.slackClient = new WebClient(this.config.slackToken);
     }
 
-    const {
-      project,
-      environment,
-      slackChannel,
-      options,
-    } = this.config;
+    const { project, environment, slackChannel, options } = this.config;
 
-    const {
-      fields,
-      getFooter,
-    } = options || {};
+    const { fields, getFooter } = options || {};
 
-    const {
-      maxLine,
-      short = false,
-      excludes = [],
-    } = fields || {};
+    const { maxLine, short = false, excludes = [] } = fields || {};
 
     const fieldsExcludes = ['message'].concat(excludes);
     const logMessageFields = message.toObject();

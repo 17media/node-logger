@@ -7,10 +7,13 @@ describe('message/errorMessage', () => {
 
     const logMessage = new ErrorMessage(message, error);
 
-    const expectedObject = Object.assign({ message }, {
-      error: `${error.name}: ${error.message}`,
-      stackTrace: error.stack,
-    });
+    const expectedObject = Object.assign(
+      { message },
+      {
+        error: `${error.name}: ${error.message}`,
+        stackTrace: error.stack,
+      }
+    );
 
     expect(logMessage.get('message')).toBe(message);
     expect(logMessage.toString()).toBe(`${message}\n${error.stack}`);

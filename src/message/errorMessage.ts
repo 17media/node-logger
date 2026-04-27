@@ -6,7 +6,9 @@ class ErrorMessage extends LogMessage {
     super(message, fields);
 
     const error =
-      err instanceof Error ? err : new Error(JSON.stringify(flattenObject(err)));
+      err instanceof Error
+        ? err
+        : new Error(JSON.stringify(flattenObject(err)));
 
     Object.assign(this.fields, {
       error: `${error.name}: ${error.message}`,

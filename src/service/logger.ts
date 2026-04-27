@@ -1,15 +1,12 @@
-import Level from '../enum/level';
 import { hasAllKeys } from '../utils';
-import { LogLevel, LogMessageInterface, BaseLoggerConfig } from '../types';
+import { LogMessageInterface, BaseLoggerConfig } from '../types';
+import { LogLevel } from '../enum/level';
 
-const requiredConfig = [
-  'project',
-  'environment',
-];
+const requiredConfig = ['project', 'environment'];
 
 const baseConfig = {
   // default minimum log level when it's not specified
-  logLevel: Level.INFO,
+  logLevel: LogLevel.INFO,
 };
 
 // abstract base class for different logging services
@@ -25,11 +22,16 @@ abstract class Logger<T extends BaseLoggerConfig = BaseLoggerConfig> {
   }
 
   ShouldLog(level: LogLevel): boolean {
-    return level >= (this.config.logLevel ?? Level.INFO);
+    return level >= (this.config.logLevel ?? LogLevel.INFO);
   }
 
   // this function must be implemented by individual service
-  abstract Log(level: LogLevel, message: LogMessageInterface, label: string, logTime: number): Promise<void>;
+  abstract Log(
+    level: LogLevel,
+    message: LogMessageInterface,
+    label: string,
+    logTime: number
+  ): Promise<void>;
 }
 
 export default Logger;

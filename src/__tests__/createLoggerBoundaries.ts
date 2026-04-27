@@ -1,5 +1,5 @@
 import { LogMessage, ErrorMessage } from '../message';
-import Level from '../enum/level';
+import { LogLevel } from '../enum/level';
 import Logger from '../logger';
 import createLogger from '../createLogger';
 
@@ -7,7 +7,7 @@ describe('createLogger (Boundaries)', () => {
   const label = 'test:boundary';
   const config = {
     base: {
-      logLevel: Level.INFO,
+      logLevel: LogLevel.INFO,
       project: 'boundary project',
       environment: 'test',
     },

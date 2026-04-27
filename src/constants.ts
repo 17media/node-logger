@@ -1,4 +1,4 @@
-import { LogLevel } from './types';
+import { LogLevel } from './enum/level';
 
 export const DEFAULT_LOG_LEVEL = LogLevel.INFO;
 export const DEFAULT_MAX_DEPTH = 10;
@@ -9,17 +9,17 @@ export const DEFAULT_TIMEOUT_MS = 10000;
  */
 export const getEnvLogLevel = (envVal?: string): LogLevel | undefined => {
   if (!envVal) return undefined;
-  
+
   const normalized = envVal.toUpperCase();
   const LevelMap: Record<string, LogLevel> = {
-    'ALL': LogLevel.ALL,
-    'DEBUG': LogLevel.DEBUG,
-    'INFO': LogLevel.INFO,
-    'WARN': LogLevel.WARN,
-    'ERROR': LogLevel.ERROR,
-    'FATAL': LogLevel.FATAL,
-    'OFF': LogLevel.OFF,
+    ALL: LogLevel.ALL,
+    DEBUG: LogLevel.DEBUG,
+    INFO: LogLevel.INFO,
+    WARN: LogLevel.WARN,
+    ERROR: LogLevel.ERROR,
+    FATAL: LogLevel.FATAL,
+    OFF: LogLevel.OFF,
   };
-  
+
   return LevelMap[normalized];
 };

@@ -1,6 +1,6 @@
 import { LogMessage } from '../../message';
 import { Console } from '../';
-import Level from '../../enum/level';
+import { LogLevel } from '../../enum/level';
 
 describe('service/console', () => {
   const originalLog = console.log;
@@ -26,7 +26,11 @@ describe('service/console', () => {
     };
 
     const logger = new Console(config);
-    await logger.Log(Level.INFO, new LogMessage('something happened'), 'some:label');
+    await logger.Log(
+      LogLevel.INFO,
+      new LogMessage('something happened'),
+      'some:label'
+    );
 
     expect(console.log).toHaveBeenCalledTimes(1);
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('[INFO]'));
@@ -39,10 +43,16 @@ describe('service/console', () => {
     };
 
     const logger = new Console(config);
-    await logger.Log(Level.ERROR, new LogMessage('something terrible happened'), 'some:label');
+    await logger.Log(
+      LogLevel.ERROR,
+      new LogMessage('something terrible happened'),
+      'some:label'
+    );
 
     expect(console.error).toHaveBeenCalledTimes(1);
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('[ERROR]'));
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining('[ERROR]')
+    );
   });
 
   it('should log WARN to console.warn', async () => {
@@ -52,9 +62,15 @@ describe('service/console', () => {
     };
 
     const logger = new Console(config);
-    await logger.Log(Level.WARN, new LogMessage('something suspicious'), 'some:label');
+    await logger.Log(
+      LogLevel.WARN,
+      new LogMessage('something suspicious'),
+      'some:label'
+    );
 
     expect(console.warn).toHaveBeenCalledTimes(1);
-    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('[WARN]'));
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('[WARN]')
+    );
   });
 });

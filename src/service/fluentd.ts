@@ -1,23 +1,22 @@
 import Logger from './logger';
 import { hasAllKeys, formatLogLevel } from '../utils';
-import { LogLevel, LogMessageInterface, FluentdLoggerConfig } from '../types';
+import { LogMessageInterface, FluentdLoggerConfig } from '../types';
+import { LogLevel } from '../enum/level';
 
-const requiredConfig = [
-  'collectorUrl',
-];
+const requiredConfig = ['collectorUrl'];
 
 class FluentdLogger extends Logger<FluentdLoggerConfig> {
   IsConfigValid(): boolean {
-    return super.IsConfigValid() &&
-      hasAllKeys(this.config, requiredConfig);
+    return super.IsConfigValid() && hasAllKeys(this.config, requiredConfig);
   }
 
-  async Log(level: LogLevel, message: LogMessageInterface, label: string, logTime: number): Promise<void> {
-    const {
-      project,
-      environment,
-      collectorUrl,
-    } = this.config;
+  async Log(
+    level: LogLevel,
+    message: LogMessageInterface,
+    label: string,
+    logTime: number
+  ): Promise<void> {
+    const { project, environment, collectorUrl } = this.config;
 
     const fluentdObject = Object.assign({}, message.toObject(), {
       project,
@@ -28,14 +27,13 @@ class FluentdLogger extends Logger<FluentdLoggerConfig> {
     });
 
     // replace . with _ in keys because fluentd does not accept .
-    Object.keys(fluentdObject)
-      .forEach((key) => {
-        const newKey = key.replace(/\./g, '_');
-        if (newKey !== key) {
-          fluentdObject[newKey] = fluentdObject[key];
-          delete fluentdObject[key];
-        }
-      });
+    Object.keys(fluentdObject).forEach(key => {
+      const newKey = key.replace(/\./g, '_');
+      if (newKey !== key) {
+        fluentdObject[newKey] = fluentdObject[key];
+        delete fluentdObject[key];
+      }
+    });
 
     try {
       const response = await fetch(collectorUrl, {
@@ -47,7 +45,9 @@ class FluentdLogger extends Logger<FluentdLoggerConfig> {
       });
 
       if (!response.ok) {
-        console.error(`Error sending log to Fluentd: ${response.status} ${response.statusText}`);
+        console.error(
+          `Error sending log to Fluentd: ${response.status} ${response.statusText}`
+        );
       }
     } catch (error: any) {
       console.error('Error sending log to Fluentd:', error.message);

@@ -1,13 +1,14 @@
 import { LogMessage } from '../message';
 import { Slack, Fluentd, Console } from '../service';
-import Level from '../enum/level';
 import Logger from '../logger';
-import { LogLevel } from '../types';
+import { LogLevel } from '../enum/level';
 
 describe('logger', () => {
   describe('config', () => {
     it('should accept object', () => {
-      expect(() => new Logger({ key: 'value' } as any)).not.toThrow('invalid config');
+      expect(() => new Logger({ key: 'value' } as any)).not.toThrow(
+        'invalid config'
+      );
     });
 
     it('should not accept string', () => {
@@ -41,7 +42,7 @@ describe('logger', () => {
           options: {},
         },
         Slack: {
-          logLevel: Level.DEBUG,
+          logLevel: LogLevel.DEBUG,
           slackToken: 'token',
           slackChannel: 'slack channel',
         },
@@ -53,7 +54,12 @@ describe('logger', () => {
       expect(logger.services).toHaveLength(1);
       expect(logger.services[0]).toBeInstanceOf(Slack);
       expect((logger.services[0] as any).config).toEqual(
-        Object.assign({}, { logLevel: Level.INFO }, config.base, config.Slack)
+        Object.assign(
+          {},
+          { logLevel: LogLevel.INFO },
+          config.base,
+          config.Slack
+        )
       );
       expect(Slack.prototype.IsConfigValid).toHaveBeenCalledTimes(1);
 
@@ -79,12 +85,12 @@ describe('logger', () => {
 
       config = {
         base: {
-          logLevel: Level.INFO,
+          logLevel: LogLevel.INFO,
           project: 'cool project',
           environment: 'production',
         },
         Slack: {
-          logLevel: Level.ERROR,
+          logLevel: LogLevel.ERROR,
           slackToken: 'token',
           slackChannel: 'slack channel',
         },
@@ -94,9 +100,12 @@ describe('logger', () => {
         },
       };
 
-      jest.spyOn(global, 'Date').mockImplementation(() => ({
-        getTime: () => logTime,
-      } as any));
+      jest.spyOn(global, 'Date').mockImplementation(
+        () =>
+          ({
+            getTime: () => logTime,
+          }) as any
+      );
     });
 
     afterAll(() => {
@@ -108,15 +117,30 @@ describe('logger', () => {
 
     it('should call each service and pass through message', async () => {
       const logger = new Logger(config);
-      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message), label);
+      await logger.Log(LogLevel.ERROR, new LogMessage(message), label);
 
       expect(logger.services).toHaveLength(3);
       expect(Slack.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Slack.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label, logTime);
+      expect(Slack.prototype.Log).toHaveBeenCalledWith(
+        LogLevel.ERROR,
+        new LogMessage(message),
+        label,
+        logTime
+      );
       expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label, logTime);
+      expect(Fluentd.prototype.Log).toHaveBeenCalledWith(
+        LogLevel.ERROR,
+        new LogMessage(message),
+        label,
+        logTime
+      );
       expect(Console.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(Console.prototype.Log).toHaveBeenCalledWith(Level.ERROR, new LogMessage(message), label, logTime);
+      expect(Console.prototype.Log).toHaveBeenCalledWith(
+        LogLevel.ERROR,
+        new LogMessage(message),
+        label,
+        logTime
+      );
     });
 
     it('should skip services with incomplete config', async () => {
@@ -124,7 +148,7 @@ describe('logger', () => {
       Slack.prototype.IsConfigValid = jest.fn(() => false);
 
       const logger = new Logger(config);
-      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message), label);
+      await logger.Log(LogLevel.ERROR, new LogMessage(message), label);
 
       expect(logger.services).toHaveLength(2);
       expect(Slack.prototype.Log).not.toHaveBeenCalled();
@@ -146,25 +170,41 @@ describe('logger', () => {
       });
 
       const logger = new Logger(config).Label(label);
-      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message));
+      await logger.Log(LogLevel.ERROR, new LogMessage(message));
 
       expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
       expect(logFinished).toHaveBeenCalledTimes(2);
     });
 
     it('should not expose internal service errors', async () => {
-      Slack.prototype.Log = jest.fn(() => Promise.reject(new Error('Slack Fail')));
-      Fluentd.prototype.Log = jest.fn(() => Promise.reject(new Error('Fluentd Fail')));
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      Slack.prototype.Log = jest.fn(() =>
+        Promise.reject(new Error('Slack Fail'))
+      );
+      Fluentd.prototype.Log = jest.fn(() =>
+        Promise.reject(new Error('Fluentd Fail'))
+      );
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
       const logger = new Logger(config).Label(label);
       // Should resolve normally
-      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message));
-      
+      await logger.Log(LogLevel.ERROR, new LogMessage(message));
+
       expect(Fluentd.prototype.Log).toHaveBeenCalledTimes(1);
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[MasterLogger] Service "SlackLogger" failed to log:'), expect.any(Error));
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[MasterLogger] Service "FluentdLogger" failed to log:'), expect.any(Error));
-      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '[MasterLogger] Service "SlackLogger" failed to log:'
+        ),
+        expect.any(Error)
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '[MasterLogger] Service "FluentdLogger" failed to log:'
+        ),
+        expect.any(Error)
+      );
+
       consoleSpy.mockRestore();
     });
 
@@ -176,41 +216,60 @@ describe('logger', () => {
         Log: () => Promise.reject(new Error('Anonymous Fail')),
         IsConfigValid: () => true,
       };
-      
+
       // Override constructor to test the 'Service' fallback
-      Object.defineProperty(anonymousService, 'constructor', { value: { name: '' } });
+      Object.defineProperty(anonymousService, 'constructor', {
+        value: { name: '' },
+      });
 
       logger.services.push(anonymousService as any);
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      await logger.Log(Level.ERROR as LogLevel, new LogMessage(message), label);
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      await logger.Log(LogLevel.ERROR, new LogMessage(message), label);
 
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('[MasterLogger] Service "Service" failed to log:'), expect.any(Error));
-      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '[MasterLogger] Service "Service" failed to log:'
+        ),
+        expect.any(Error)
+      );
+
       consoleSpy.mockRestore();
     });
 
     it('should timeout if service takes too long', async () => {
       jest.useFakeTimers();
       const logger = new Logger(config);
-      
+
       // 模擬一個永遠不會結束的服務
       Slack.prototype.Log = jest.fn(() => new Promise(() => {}));
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      
-      const logPromise = logger.Log(Level.ERROR as LogLevel, new LogMessage(message), label);
-      
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const logPromise = logger.Log(
+        LogLevel.ERROR,
+        new LogMessage(message),
+        label
+      );
+
       // 快轉時間
       jest.advanceTimersByTime(11000);
-      
+
       await logPromise;
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[MasterLogger] Service "SlackLogger" failed to log:'),
-        expect.objectContaining({ message: expect.stringContaining('Logging timeout') })
+        expect.stringContaining(
+          '[MasterLogger] Service "SlackLogger" failed to log:'
+        ),
+        expect.objectContaining({
+          message: expect.stringContaining('Logging timeout'),
+        })
       );
-      
+
       consoleSpy.mockRestore();
       jest.useRealTimers();
     });

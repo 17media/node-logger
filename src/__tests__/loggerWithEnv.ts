@@ -1,6 +1,5 @@
 import * as services from '../service';
-import Level from '../enum/level';
-import { LogLevel } from '../types';
+import { LogLevel } from '../enum/level';
 
 describe('logger with process.env override', () => {
   let Logger: any;
@@ -18,13 +17,13 @@ describe('logger with process.env override', () => {
   it('should use LOG_LEVEL defined in process.env', () => {
     const config = {
       base: {
-        logLevel: Level.INFO,
+        logLevel: LogLevel.INFO,
         project: 'cool project',
         environment: 'production',
         options: {},
       },
       Slack: {
-        logLevel: Level.ERROR,
+        logLevel: LogLevel.ERROR,
         slackToken: 'token',
         slackChannel: 'slack channel',
       },
@@ -38,10 +37,17 @@ describe('logger with process.env override', () => {
 
     expect(logger.services).toHaveLength(3);
     logger.services.forEach((service: any) => {
-      (['Slack', 'Fluentd', 'Console'] as const).forEach((serviceName) => {
+      (['Slack', 'Fluentd', 'Console'] as const).forEach(serviceName => {
         if (service instanceof (services as any)[serviceName]) {
           expect(service.config).toEqual(
-            Object.assign({}, config.base, (config as any)[serviceName] === true ? {} : (config as any)[serviceName], { logLevel: Level.WARN })
+            Object.assign(
+              {},
+              config.base,
+              (config as any)[serviceName] === true
+                ? {}
+                : (config as any)[serviceName],
+              { logLevel: LogLevel.WARN }
+            )
           );
         }
       });

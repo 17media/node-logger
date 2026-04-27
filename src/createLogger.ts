@@ -2,7 +2,8 @@ import Logger from './logger';
 import { isLogMessage } from './utils';
 import { LogMessage, ErrorMessage } from './message';
 import methodAlias from './enum/methodAlias';
-import { LoggerConfig, LogLevel } from './types';
+import { LoggerConfig } from './types';
+import { LogLevel } from './enum/level';
 
 interface LevelLogger {
   (...args: unknown[]): Promise<any>;
@@ -29,31 +30,44 @@ const createLogger = (config: LoggerConfig) => {
   return (label: string): WrappedLogger => {
     const labelledLogger = internalLogger.Label(label);
 
-    const logger = (level: LogLevel): LevelLogger => (...args: unknown[]) => {
-      let message;
+    const logger =
+      (level: LogLevel): LevelLogger =>
+      (...args: unknown[]) => {
+        let message;
 
-      if (args.length === 1 && isLogMessage(args[0])) {
-        // custom extended log message
-        message = args[0];
-      } else if (args.some(arg => arg instanceof Error)) {
-        // error message
-        const error = args.find(arg => arg instanceof Error) as Error;
-        const otherArgs = args.filter(arg => !(arg instanceof Error)) as any[];
-        // Note: original ErrorMessage logic takes (message, err, fields)
-        message = new ErrorMessage(otherArgs[0] || error.message, error, otherArgs[1] || {});
-      } else {
-        // regular log message
-        message = new LogMessage(args[0] as string, (args[1] || {}) as Record<string, any>);
-      }
+        if (args.length === 1 && isLogMessage(args[0])) {
+          // custom extended log message
+          message = args[0];
+        } else if (args.some(arg => arg instanceof Error)) {
+          // error message
+          const error = args.find(arg => arg instanceof Error) as Error;
+          const otherArgs = args.filter(
+            arg => !(arg instanceof Error)
+          ) as any[];
+          // Note: original ErrorMessage logic takes (message, err, fields)
+          message = new ErrorMessage(
+            otherArgs[0] || error.message,
+            error,
+            otherArgs[1] || {}
+          );
+        } else {
+          // regular log message
+          message = new LogMessage(
+            args[0] as string,
+            (args[1] || {}) as Record<string, any>
+          );
+        }
 
-      return labelledLogger.Log(level, message);
-    };
+        return labelledLogger.Log(level, message);
+      };
 
     const finalLogger = ((level: LogLevel) => logger(level)) as WrappedLogger;
 
-    (Object.keys(methodAlias) as Array<keyof typeof methodAlias>).forEach((method) => {
-      finalLogger[method] = logger(methodAlias[method]);
-    });
+    (Object.keys(methodAlias) as Array<keyof typeof methodAlias>).forEach(
+      method => {
+        finalLogger[method] = logger(methodAlias[method]);
+      }
+    );
 
     return finalLogger;
   };

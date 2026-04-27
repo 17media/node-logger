@@ -33,7 +33,7 @@ describe('message/logMessage', () => {
     expect(logMessage.get('value')).toBe('wow');
   });
 
-  it('should return message from .get(\'message\')', () => {
+  it("should return message from .get('message')", () => {
     const message = 'something happened';
     const logMessage = new LogMessage(message);
 
