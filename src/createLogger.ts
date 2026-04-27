@@ -1,9 +1,8 @@
 import Logger from './logger';
 import { isLogMessage } from './utils';
 import { LogMessage, ErrorMessage } from './message';
-import methodAlias from './enum/methodAlias';
-import { LoggerConfig } from './types';
 import { LogLevel } from './enum/level';
+import { LoggerConfig } from './types';
 
 interface LevelLogger {
   (...args: unknown[]): Promise<any>;
@@ -61,11 +60,16 @@ const createLogger = (config: LoggerConfig) => {
         return labelledLogger.Log(level, message);
       };
 
-    const finalLogger = ((level: LogLevel) => logger(level)) as WrappedLogger;
-
-    (Object.keys(methodAlias) as Array<keyof typeof methodAlias>).forEach(
-      method => {
-        finalLogger[method] = logger(methodAlias[method]);
+    // 靜態定義 WrappedLogger，取代原本的動態掛載
+    const finalLogger: WrappedLogger = Object.assign(
+      (level: LogLevel) => logger(level),
+      {
+        fatal: logger(LogLevel.FATAL),
+        error: logger(LogLevel.ERROR),
+        warn: logger(LogLevel.WARN),
+        info: logger(LogLevel.INFO),
+        debug: logger(LogLevel.DEBUG),
+        log: logger(LogLevel.INFO), // Alias for info
       }
     );
 
