@@ -5,10 +5,13 @@ import { hasAllKeys, formatLogLevel } from '../utils';
 import { LogMessageInterface, SlackLoggerConfig } from '../types';
 import { LogLevel } from '../enum/level';
 
+// Slack 服務必要配置項
 const requiredConfig = ['slackToken', 'slackChannel'];
 
+/**
+ * 根據 LogLevel 決定 Slack 訊息旁的側邊顏色
+ */
 function formatLogLevelSlackColor(logLevel: LogLevel) {
-  // map LogLevel enum to slack colors
   const colors: Record<number, string> = {
     [LogLevel.DEBUG]: 'good',
     [LogLevel.INFO]: 'good',
@@ -19,7 +22,11 @@ function formatLogLevelSlackColor(logLevel: LogLevel) {
   return colors[logLevel] || 'good';
 }
 
-function formatMessage(message: string, maxLine?: number) {
+/**
+ * 格式化訊息內容，支援最大行數截斷
+ */
+function formatMessage(val: any, maxLine?: number) {
+  const message = String(val);
   if (!maxLine) {
     return message;
   }
@@ -27,13 +34,22 @@ function formatMessage(message: string, maxLine?: number) {
   return message.split('\n').slice(0, maxLine).join('\n');
 }
 
+/**
+ * Slack 通知服務
+ */
 class SlackLogger extends Logger<SlackLoggerConfig> {
   private slackClient?: WebClient;
 
+  /**
+   * 驗證 Slack 配置是否完整
+   */
   IsConfigValid(): boolean {
     return super.IsConfigValid() && hasAllKeys(this.config, requiredConfig);
   }
 
+  /**
+   * 發送日誌訊息至 Slack
+   */
   async Log(
     level: LogLevel,
     message: LogMessageInterface,
@@ -45,17 +61,18 @@ class SlackLogger extends Logger<SlackLoggerConfig> {
     }
 
     const { project, environment, slackChannel, options } = this.config;
-
     const { fields, getFooter } = options || {};
-
     const { maxLine, short = false, excludes = [] } = fields || {};
 
     const fieldsExcludes = ['message'].concat(excludes);
     const logMessageFields = message.toObject();
+    
+    // 設定訊息底部的頁尾文字
     const footer = getFooter
       ? getFooter(logMessageFields, logTime)
       : `${project} - ${environment} - ${label}`;
 
+    // 建立 Slack Attachment 結構
     const messageOpts = {
       channel: slackChannel,
       text: `[${formatLogLevel(level).toUpperCase()}] ${message.get('message')}`,
@@ -78,7 +95,6 @@ class SlackLogger extends Logger<SlackLoggerConfig> {
     try {
       const result = await this.slackClient.chat.postMessage(messageOpts);
       if (!result.ok) {
-        // Log to console if slack fails but don't crash
         console.error(`Slack logging failed: ${result.error}`);
       }
     } catch (error) {

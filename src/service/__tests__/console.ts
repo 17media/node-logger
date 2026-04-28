@@ -29,7 +29,8 @@ describe('service/console', () => {
     await logger.Log(
       LogLevel.INFO,
       new LogMessage('something happened'),
-      'some:label'
+      'some:label',
+      1500000000000
     );
 
     expect(console.log).toHaveBeenCalledTimes(1);
@@ -46,7 +47,8 @@ describe('service/console', () => {
     await logger.Log(
       LogLevel.ERROR,
       new LogMessage('something terrible happened'),
-      'some:label'
+      'some:label',
+      1500000000000
     );
 
     expect(console.error).toHaveBeenCalledTimes(1);
@@ -65,7 +67,8 @@ describe('service/console', () => {
     await logger.Log(
       LogLevel.WARN,
       new LogMessage('something suspicious'),
-      'some:label'
+      'some:label',
+      1500000000000
     );
 
     expect(console.warn).toHaveBeenCalledTimes(1);

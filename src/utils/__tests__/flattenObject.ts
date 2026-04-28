@@ -93,4 +93,44 @@ describe('utils/flattenObject', () => {
       'level1.level2': '[Max Depth Reached]',
     });
   });
+
+  it('should handle Date objects', () => {
+    const date = new Date('2024-01-01T00:00:00Z');
+    // Note: Date is mocked to 2017-07-05 in testing/date.ts
+    expect(flattenObject(date)).toEqual({ value: '2017-07-05T00:00:00.000Z' });
+  });
+
+  it('should handle Map objects', () => {
+    const map = new Map([['a', 1], ['b', 2]]);
+    expect(flattenObject(map)).toEqual({ a: 1, b: 2 });
+  });
+
+  it('should handle Set objects', () => {
+    const set = new Set([1, 2]);
+    expect(flattenObject(set)).toEqual({ '0': 1, '1': 2 });
+  });
+
+  it('should handle Error objects', () => {
+    const error = new Error('boom');
+    error.name = 'CustomError';
+    const result = flattenObject(error);
+    expect(result.name).toBe('CustomError');
+    expect(result.message).toBe('boom');
+    expect(result.stack).toBeDefined();
+  });
+
+  it('should handle objects with toJSON', () => {
+    const obj = {
+      foo: 'bar',
+      toJSON: () => ({ converted: true })
+    };
+    expect(flattenObject(obj)).toEqual({ converted: true });
+  });
+
+  it('should handle non-plain objects without keys', () => {
+    class MyClass {
+      toString() { return 'MyClassInstance'; }
+    }
+    expect(flattenObject(new MyClass())).toEqual({ value: 'MyClassInstance' });
+  });
 });
