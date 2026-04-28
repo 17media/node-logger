@@ -84,7 +84,7 @@ class MasterLogger {
         timeoutId = setTimeout(() => {
           reject(
             new Error(
-              `日誌發送逾時 (${DEFAULT_TIMEOUT_MS}ms) - 服務: ${serviceName}`
+              `Logging timeout after ${DEFAULT_TIMEOUT_MS}ms for ${serviceName}`
             )
           );
         }, DEFAULT_TIMEOUT_MS);
