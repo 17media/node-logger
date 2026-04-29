@@ -68,4 +68,20 @@ describe('createLogger (Boundaries)', () => {
     const message = (Logger.prototype.Log as jest.Mock).mock.calls[0][1];
     expect(message.fields).toEqual({ value: 'not-an-object' });
   });
+
+  it('should handle direct function call (logger(level)(...))', async () => {
+    await logger(LogLevel.DEBUG)('direct call');
+    expect(Logger.prototype.Log).toHaveBeenCalledWith(
+      LogLevel.DEBUG,
+      expect.any(LogMessage),
+      label
+    );
+  });
+
+  it('should handle passing only an object (no message string)', async () => {
+    await logger.info({ metadata: 'only' });
+    const message = (Logger.prototype.Log as jest.Mock).mock.calls[0][1];
+    expect(message.message).toBe('');
+    expect(message.fields).toEqual({ metadata: 'only' });
+  });
 });

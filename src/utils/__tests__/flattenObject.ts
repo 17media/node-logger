@@ -127,6 +127,26 @@ describe('utils/flattenObject', () => {
     expect(flattenObject(obj)).toEqual({ converted: true });
   });
 
+  it('should handle toJSON that throws error', () => {
+    const obj = {
+      foo: 'bar',
+      toJSON: () => { throw new Error('toJSON failed'); }
+    };
+    // Should fall back to normal object flattening, function is stringified
+    const result = flattenObject(obj);
+    expect(result.foo).toBe('bar');
+    expect(typeof result.toJSON).toBe('string');
+    expect(result.toJSON).toContain('toJSON failed');
+  });
+
+  it('should handle toJSON that returns the same object', () => {
+    const obj: any = { foo: 'bar' };
+    obj.toJSON = () => obj;
+    const result = flattenObject(obj);
+    expect(result.foo).toBe('bar');
+    expect(typeof result.toJSON).toBe('string');
+  });
+
   it('should handle non-plain objects without keys', () => {
     class MyClass {
       toString() { return 'MyClassInstance'; }

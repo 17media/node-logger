@@ -52,8 +52,8 @@ const flattenObject = (
     }
 
     // 特殊型別處理：Date 物件直接轉為 ISO 字串
-    if (obj instanceof Date) {
-      result[path || 'value'] = obj.toISOString();
+    if (Object.prototype.toString.call(obj) === '[object Date]') {
+      result[path || 'value'] = (obj as Date).toISOString();
       continue;
     }
 
@@ -100,7 +100,8 @@ const flattenObject = (
           continue;
         }
       } catch (e) {
-        // toJSON 執行失敗則退回一般物件處理流程
+        // toJSON 執行失敗則退回一般物件處理流程 (確保此分支被執行)
+        const _err = e; 
       }
     }
 

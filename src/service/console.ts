@@ -35,11 +35,15 @@ class ConsoleLogger extends Logger {
     // 根據層級決定呼叫控制台的不同方法
     if (level >= LogLevel.ERROR) {
       console.error(logOutput);
-    } else if (level === LogLevel.WARN) {
+      return;
+    } 
+    
+    if (level === LogLevel.WARN) {
       console.warn(logOutput);
-    } else {
-      console.log(logOutput);
+      return;
     }
+
+    console.log(logOutput);
   }
 }
 

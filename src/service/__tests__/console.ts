@@ -76,4 +76,38 @@ describe('service/console', () => {
       expect.stringContaining('[WARN]')
     );
   });
+
+  it('should log DEBUG to console.log', async () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+    };
+
+    const logger = new Console(config);
+    await logger.Log(
+      LogLevel.DEBUG,
+      new LogMessage('debug info'),
+      'some:label',
+      1500000000000
+    );
+
+    expect(console.log).toHaveBeenCalledTimes(1);
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('[DEBUG]'));
+  });
+
+  it('should include metadata in the output if fields are present', async () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+    };
+
+    const logger = new Console(config);
+    const message = new LogMessage('with fields', { key: 'value' });
+    
+    await logger.Log(LogLevel.INFO, message, 'test:label', 1500000000000);
+
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('"key": "value"')
+    );
+  });
 });
