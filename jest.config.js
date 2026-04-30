@@ -1,8 +1,17 @@
-module.exports = {
+export default {
   collectCoverage: true,
   coveragePathIgnorePatterns: [
     "<rootDir>/lib/",
+    "<rootDir>/node_modules/",
+    "<rootDir>/testing/"
+  ],
+  setupFilesAfterEnv: ['<rootDir>/testing/setup.ts'],
+  testEnvironment: 'node',
+  testPathIgnorePatterns: [
+    "<rootDir>/lib/",
     "<rootDir>/node_modules/"
   ],
-  setupFilesAfterEnv: ['<rootDir>/testing/setup.js'],
+  transform: {
+    '^.+\\.[jt]sx?$': 'babel-jest',
+  },
 };

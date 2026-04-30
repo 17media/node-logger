@@ -1,0 +1,113 @@
+import { LogMessage } from '../../message';
+import { Console } from '../';
+import { LogLevel } from '../../enum/level';
+
+describe('service/console', () => {
+  const originalLog = console.log;
+  const originalError = console.error;
+  const originalWarn = console.warn;
+
+  beforeEach(() => {
+    console.log = jest.fn();
+    console.error = jest.fn();
+    console.warn = jest.fn();
+  });
+
+  afterAll(() => {
+    console.log = originalLog;
+    console.error = originalError;
+    console.warn = originalWarn;
+  });
+
+  it('should log INFO to console.log', async () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+    };
+
+    const logger = new Console(config);
+    await logger.Log(
+      LogLevel.INFO,
+      new LogMessage('something happened'),
+      'some:label',
+      1500000000000
+    );
+
+    expect(console.log).toHaveBeenCalledTimes(1);
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('[INFO]'));
+  });
+
+  it('should log ERROR to console.error', async () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+    };
+
+    const logger = new Console(config);
+    await logger.Log(
+      LogLevel.ERROR,
+      new LogMessage('something terrible happened'),
+      'some:label',
+      1500000000000
+    );
+
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining('[ERROR]')
+    );
+  });
+
+  it('should log WARN to console.warn', async () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+    };
+
+    const logger = new Console(config);
+    await logger.Log(
+      LogLevel.WARN,
+      new LogMessage('something suspicious'),
+      'some:label',
+      1500000000000
+    );
+
+    expect(console.warn).toHaveBeenCalledTimes(1);
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('[WARN]')
+    );
+  });
+
+  it('should log DEBUG to console.log', async () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+    };
+
+    const logger = new Console(config);
+    await logger.Log(
+      LogLevel.DEBUG,
+      new LogMessage('debug info'),
+      'some:label',
+      1500000000000
+    );
+
+    expect(console.log).toHaveBeenCalledTimes(1);
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('[DEBUG]'));
+  });
+
+  it('should include metadata in the output if fields are present', async () => {
+    const config = {
+      project: 'cool project',
+      environment: 'production',
+    };
+
+    const logger = new Console(config);
+    const message = new LogMessage('with fields', { key: 'value' });
+    
+    await logger.Log(LogLevel.INFO, message, 'test:label', 1500000000000);
+
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('"key": "value"')
+    );
+  });
+});

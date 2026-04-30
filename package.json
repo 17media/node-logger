@@ -1,14 +1,29 @@
 {
   "name": "@17media/node-logger",
-  "version": "2.1.1",
-  "description": "Centralized logger for 17.Media Node.JS projects",
+  "version": "3.0.0",
+  "type": "module",
+  "description": "Centralized logger for 17LIVE Node.JS projects",
   "main": "lib/index.js",
+  "module": "src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "require": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    }
+  },
   "scripts": {
-    "build": "babel src -d lib --ignore __tests__",
-    "build:watch": "npm run build -- --watch",
+    "prepare": "husky",
+    "build": "tsc && babel src -d lib --ignore __tests__ --extensions \".ts,.js\" && echo '{\"type\": \"commonjs\"}' > lib/package.json",
+    "build:watch": "yarn build --watch",
     "test": "jest",
-    "test:watch": "npm test -- --watch",
+    "test:watch": "yarn test --watch",
     "lint": "eslint ."
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "eslint --fix"
+    ]
   },
   "repository": {
     "type": "git",
@@ -21,27 +36,46 @@
   ],
   "author": "17media",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "bugs": {
     "url": "https://github.com/17media/node-logger/issues"
   },
   "homepage": "https://github.com/17media/node-logger#readme",
+  "files": [
+    "lib",
+    "src",
+    "README.md",
+    "README.zh-TW.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "dependencies": {
-    "@slack/client": "^5.0.2",
-    "lodash": "^4.17.19",
-    "superagent": "^5.3.1"
+    "@babel/runtime-corejs3": "^7.29.2",
+    "@slack/web-api": "^7.15.1"
   },
   "devDependencies": {
-    "@17media/eslint-config-17media": "^2.0.0",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^26.2.2",
-    "babel-preset-env": "^1.7.0",
-    "coveralls": "^3.1.0",
-    "deep-freeze": "0.0.1",
-    "eslint": "^7.6.0",
-    "eslint-plugin-import": "^2.22.0",
-    "eslint-plugin-react": "^7.20.5",
-    "jest": "^26.2.2"
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/eslint-parser": "^7.12.1",
+    "@babel/plugin-transform-runtime": "^7.29.0",
+    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-typescript": "^7.28.5",
+    "@eslint/eslintrc": "^3.0.0",
+    "@eslint/js": "^9.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.6.0",
+    "babel-jest": "^30.3.0",
+    "coveralls-next": "^6.0.1",
+    "eslint": "^9.0.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-react": "^7.37.0",
+    "globals": "^15.0.0",
+    "husky": "^9.0.0",
+    "jest": "^30.3.0",
+    "jest-junit": "^16.0.0",
+    "lint-staged": "^15.0.0",
+    "typescript": "^6.0.3"
   }
 }
