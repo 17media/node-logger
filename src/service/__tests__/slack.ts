@@ -234,4 +234,44 @@ describe('service/slack', () => {
     );
     consoleSpy.mockRestore();
   });
+
+  it('should map log levels to correct slack colors', async () => {
+    const config = { project: 'p', environment: 'e', slackToken: 't', slackChannel: 'c' };
+    const logger = new Slack(config);
+
+    const testCases = [
+      { level: LogLevel.DEBUG, expectedColor: 'good' },
+      { level: LogLevel.INFO, expectedColor: 'good' },
+      { level: LogLevel.WARN, expectedColor: 'warning' },
+      { level: LogLevel.ERROR, expectedColor: 'danger' },
+      { level: LogLevel.FATAL, expectedColor: 'danger' },
+    ];
+
+    for (const { level, expectedColor } of testCases) {
+      await logger.Log(level, new LogMessage('msg'), 'label', 1);
+      expect(mockPostMessage).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          attachments: [expect.objectContaining({ color: expectedColor })]
+        })
+      );
+    }
+  });
+
+  it('should support excluding specific fields in Slack output', async () => {
+    const config = {
+      project: 'p', environment: 'e', slackToken: 't', slackChannel: 'c',
+      options: { fields: { excludes: ['secret', 'token'] } }
+    };
+    const logger = new Slack(config);
+    const message = new LogMessage('msg', { secret: 'xxx', token: 'yyy', public: 'hello' });
+
+    await logger.Log(LogLevel.INFO, message, 'label', 1);
+
+    const lastCall = mockPostMessage.mock.calls[mockPostMessage.mock.calls.length - 1][0];
+    const fields = lastCall.attachments[0].fields;
+    
+    expect(fields.find((f: any) => f.title === 'public')).toBeDefined();
+    expect(fields.find((f: any) => f.title === 'secret')).toBeUndefined();
+    expect(fields.find((f: any) => f.title === 'token')).toBeUndefined();
+  });
 });
