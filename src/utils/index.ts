@@ -64,14 +64,12 @@ const flattenObject = (
         mapObj[String(key)] = val;
       });
       stack.push({ obj: mapObj, path, depth });
-      seen.delete(obj); // 允許內容被重新處理
       continue;
     }
 
     // 特殊型別處理：Set 轉換為陣列
     if (obj instanceof Set) {
       stack.push({ obj: Array.from(obj), path, depth });
-      seen.delete(obj);
       continue;
     }
 
@@ -86,7 +84,6 @@ const flattenObject = (
         path,
         depth,
       });
-      seen.delete(obj);
       continue;
     }
 
@@ -96,7 +93,6 @@ const flattenObject = (
         const json = obj.toJSON();
         if (json !== obj) {
           stack.push({ obj: json, path, depth });
-          seen.delete(obj);
           continue;
         }
       } catch (e) {

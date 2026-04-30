@@ -26,7 +26,8 @@ function formatLogLevelSlackColor(logLevel: LogLevel) {
  * 格式化訊息內容，支援最大行數截斷
  */
 function formatMessage(val: any, maxLine?: number) {
-  const message = String(val);
+  const message =
+    typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val);
   if (!maxLine) {
     return message;
   }
@@ -66,7 +67,7 @@ class SlackLogger extends Logger<SlackLoggerConfig> {
 
     const fieldsExcludes = ['message'].concat(excludes);
     const logMessageFields = message.toObject();
-    
+
     // 設定訊息底部的頁尾文字
     const footer = getFooter
       ? getFooter(logMessageFields, logTime)

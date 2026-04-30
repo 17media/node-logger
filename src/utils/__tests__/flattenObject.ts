@@ -153,4 +153,20 @@ describe('utils/flattenObject', () => {
     }
     expect(flattenObject(new MyClass())).toEqual({ value: 'MyClassInstance' });
   });
+
+  it('should handle Map containing itself (circular reference)', () => {
+    const m = new Map();
+    m.set('self', m);
+    m.set('data', 'hello');
+    const result = flattenObject(m);
+    expect(result['self']).toBe('[Circular Reference]');
+    expect(result['data']).toBe('hello');
+  });
+
+  it('should handle Set containing itself (circular reference)', () => {
+    const s = new Set();
+    s.add(s);
+    const result = flattenObject(s);
+    expect(result['0']).toBe('[Circular Reference]');
+  });
 });
