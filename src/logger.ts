@@ -22,9 +22,15 @@ class MasterLogger {
       throw new Error('invalid config');
     }
 
-    // 必須包含基礎配置，因為其中包含專案名稱與環境資訊
-    if (!config.base) {
-      throw new Error('Missing "base" configuration. "project" and "environment" are required.');
+    // 自動相容：如果沒有 base，但頂層有 project 和 environment，則自動建立 base
+    const effectiveBase = config.base || {
+      project: (config as any).project,
+      environment: (config as any).environment,
+      logLevel: (config as any).logLevel,
+    };
+
+    if (!effectiveBase.project || !effectiveBase.environment) {
+      throw new Error('Missing required configuration: "project" and "environment" are required (either in "base" or top-level).');
     }
 
     const envLogLevel = getEnvLogLevel(LOG_LEVEL);
@@ -39,7 +45,7 @@ class MasterLogger {
 
         const serviceConfig = Object.assign(
           {},
-          config.base,
+          effectiveBase,
           serviceSpecificConfig,
           // 如果有環境變數 LOG_LEVEL，則覆蓋原有配置的層級
           envLogLevel !== undefined ? { logLevel: envLogLevel } : {}

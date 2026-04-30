@@ -1,31 +1,13 @@
 # node-logger v3.0.0 🚀
 
-[![npm (scoped)](https://img.shields.io/npm/v/@17media/node-logger.svg)]()
-[![Coverage Status](https://coveralls.io/repos/github/17media/node-logger/badge.svg?branch=master)](https://coveralls.io/github/17media/node-logger?branch=master)
+Centralized logger for 17LIVE Node.JS projects.
 
-[English Version](./README.md)
-
-專為 17LIVE Node.JS 專案設計的集中化 Logger 服務。
-
-> ... 在末日火山的烈焰中，黑暗魔君索倫秘密打造了一個 **Master Logger**，用以統御所有服務。<br>
-> **"One logger to log them all!"**
->
-> ![](https://i0.wp.com/media2.slashfilm.com/slashfilm/wp/wp-content/images/lordoftherings-ring-map.jpg)
-
-## ✨ v3.0.0 新功能
-- **100% TypeScript**: 提供完善的型別定義與 IDE 自動補全。
-- **Modern Async**: 全面支援 `async/await` 非同步操作。
-- **Zero Dependencies**: 徹底移除 lodash 等外部依賴，極致輕量。
-- **Industrial Stability**: 
-  - **超時保護**: 單一服務 (Slack/Fluentd) 卡住超過 10 秒會自動放棄，不影響主程式運行。
-  - **遞迴保護**: 優化過的迭代式物件拍平 (flattenObject)，支援極深層物件與循環引用。
-- **100% Test Coverage**: 所有的核心邏輯路徑均經過單元測試驗證。
-
-## 📦 安裝
-
-```bash
-yarn add @17media/node-logger
-```
+## ✨ v3.0.0 亮點
+- **100% TypeScript**: 完整型別定義，完美支援 IDE 自動補全與開發者體驗。
+- **現代化非同步**: 所有日誌發送任務原生支援 `async/await`。
+- **零依賴**: 移除 lodash 等外部套件，保持極致輕量與安全。
+- **向下相容**: 100% 相容 v2.x 代碼，升級現有專案無需修改任何程式碼。
+- **100% 測試覆蓋率**: 嚴格驗證所有邏輯路徑、邊界情況與極端案例。
 
 ## 🛠 配置說明
 
@@ -33,84 +15,90 @@ yarn add @17media/node-logger
 import { createLogger, Level } from '@17media/node-logger';
 
 const loggerConfig = {
-  // 共享配置
+  // 基礎配置 (建議 v3 寫法)
   base: {
-    project: 'my-project',
+    project: 'my-app',
     environment: 'production',
-    logLevel: Level.INFO, // 預設最低 Log 層級
+    logLevel: Level.INFO,
   },
-  // Slack 服務
+  // 或者傳統 v2 寫法 (直接將 project/environment 放在頂層)
+  // project: 'my-app',
+  // environment: 'production',
+
   Slack: {
     slackToken: 'xoxb-xxx',
     slackChannel: '#alerts',
-    logLevel: Level.ERROR, // 僅 Error 以上層級才發送到 Slack
   },
-  // Fluentd 服務
-  Fluentd: {
-    collectorUrl: 'http://localhost:24224',
-  },
-  // 控制台輸出
   Console: true,
 };
 ```
 
 ## 🚀 使用方式
 
-### 簡便用法 (推薦 90% 場景)
+### 1. 工廠模式 (v3+ 推薦)
+
+這種方式將配置初始化與標籤綁定分離，適合在大型多模組應用中共享同一個工廠，並在不同模組間獲取帶有標籤的 Logger。
 
 ```typescript
-const logger = createLogger(loggerConfig)('auth-module');
+import { createLogger } from '@17media/node-logger';
 
-await logger.info('使用者已登入', { userId: 123 });
-await logger.error('資料庫連線失敗', new Error('Timeout'));
+// 1. 初始化工廠 (只需一次)
+const loggerFactory = createLogger(loggerConfig);
+
+// 2. 在不同模組建立帶有標籤的 Logger
+const logger = loggerFactory('auth-module');
+const dbLogger = loggerFactory('db-module');
+
+await logger.info('用戶登入成功', { userId: 123 });
 ```
 
-### 進階用法 (自定義 Message 物件)
+### 2. 直接模式 (向下相容 v2.x)
+
+如果你正從 v2 升級，現有的呼叫方式依然完全有效，不需要任何程式碼異動。
 
 ```typescript
-import { Logger, LogMessage, ErrorMessage } from '@17media/node-logger';
+import { createLogger } from '@17media/node-logger';
 
-const logger = new Logger(loggerConfig);
+// 直接傳入配置與標籤
+const logger = createLogger(loggerConfig, 'legacy-module');
 
-// 紀錄帶有特定標籤與自定義欄位的 Log
-await logger.Log(
-  Level.WARN, 
-  new LogMessage('警告訊息', { detail: '...' }), 
-  'custom-label'
-);
+await logger.warn('舊有的呼叫方式依然運作順暢！');
 ```
 
-## ⚙️ 環境變數
+## 📋 版本差異對照 (v2 vs v3)
 
-你可以透過 `LOG_LEVEL` 環境變數動態覆蓋所有服務的最低 Log 層級（不分大小寫）：
+| 特性 | v2.x (傳統) | v3.x (現代) | 說明 |
+| :--- | :--- | :--- | :--- |
+| **初始化方式** | `createLogger(conf, label)` | `createLogger(conf)(label)` | v3 支援工廠模式，重複使用率與效能更佳 |
+| **配置結構** | 專案資訊位於頂層 | 建議放在 `base` 物件內 | v3 具備自動提取頂層配置的相容邏輯 |
+| **傳回值** | Logger 實例 | Logger 工廠函數 | v3 會根據參數個數自動切換傳回類型 |
+| **非同步狀態** | 回傳 `Promise<any>` | 回傳 `PromiseSettledResult[]` | v3 讓你精確掌握每個分發服務的發送結果 |
+| **資料處理** | 僅支援基本物件 | 支援 Date, Map, Set, Error | v3 資料扁平化能力大幅強化 |
 
-```bash
-LOG_LEVEL=DEBUG node app.js
-```
+## 🛡 安全與穩定性
+- **循環引用偵測**: 自動偵測並標記物件循環引用（標記為 `[Circular Reference]`），避免崩潰。
+- **最大深度保護**: 預設扁平化限制為 10 層（可調整），防止處理過大物件導致效能受損。
+- **逾時保護**: 單一服務發送超過 10 秒自動棄置，確保不因為單點故障阻塞主程式。
 
-## 🛡 安全特性
-- **循環參照偵測 (Circular Reference)**: 自動偵測物件中的循環引用並標註，防止序列化失敗。
-- **最大深度保護**: 預設展開至 10 層，超過深度則標註為 `[Max Depth Reached]`，防止處理過大物件導致阻塞。
-
-## 🛠 開發指南 (Development)
+## 🛠 開發指南
 
 ### 開發標準
-- **嚴格型別**: 禁止使用 `any`。優先使用泛型或 `unknown` 搭配型別守衛。
-- **測試要求**: 所有的 Pull Request 均需維持 100% 的邏輯與分支覆蓋率。
-- **Git Hooks**: 每次 `git commit` 前會自動執行代碼風格檢查與 `tsc` 型別檢查。若檢查失敗將無法提交。
+- **嚴格型別**: 嚴禁使用 `any`。請使用泛型或搭配類型守衛的 `unknown`。
+- **測試要求**: 所有 Pull Request 必須維持 100% 的邏輯與分支覆蓋率。
+- **Git Hooks**: Pre-commit 鉤子會自動執行 `eslint` 與 `tsc --noEmit`。若有任何語法或型別錯誤將無法提交。
 
 ### 常用指令
-- `yarn test`: 執行所有測試並產出覆蓋率報告。
-- `yarn lint`: 檢查並自動修正代碼風格。
-- `yarn build`: 手動觸發編譯（僅用於本地 `npm link` 測試）。
+- `yarn test`: 執行所有單元測試並產出覆蓋率報告。
+- `yarn lint`: 檢查並修復程式碼風格。
+- `yarn build`: 手動觸發編譯（主要用於本地 `npm link` 測試）。
 
-### 發佈流程 (Releasing)
-本專案採用 CircleCI 自動化發佈流程。發佈新版本步驟如下：
-1. 在 Pull Request 中更新 `package.json` 的版本號並同步更新 `CHANGELOG.md`。
+### 發佈流程
+發佈流程透過 CircleCI 自動化執行。若要發佈新版本：
+1. 在 PR 中更新 `package.json` 與 `CHANGELOG.md` 的版本號。
 2. 將 PR 合併至 `master` 分支。
-3. 在本地建立並推送 Git Tag：
+3. 建立並推送一個 Git Tag：
    ```bash
    git tag v3.0.x
    git push origin v3.0.x
    ```
-4. CircleCI 偵測到新 Tag 後，會自動執行測試、編譯並發佈至 npm registry。
+4. CircleCI 會偵測到 Tag，自動執行測試、編譯，並發佈至 npm registry。

@@ -25,13 +25,15 @@ interface WrappedLogger {
 /**
  * 建立一個 Logger 工廠函數。
  * @param config Logger 配置物件，包含 Slack, Fluentd, Console 等服務的設定。
- * @returns 一個接收標籤 (label) 並回傳 WrappedLogger 的函數。
+ * @param label (選填) 若提供此參數，則直接回傳該標籤的 Logger 實例 (相容 v2.x 習慣)。
  */
-const createLogger = (config: LoggerConfig) => {
+function createLogger(config: LoggerConfig): (label: string) => WrappedLogger;
+function createLogger(config: LoggerConfig, label: string): WrappedLogger;
+function createLogger(config: LoggerConfig, label?: string): any {
   const internalLogger = new Logger(config);
 
-  return (label: string): WrappedLogger => {
-    const labelledLogger = internalLogger.Label(label);
+  const factory = (labelStr: string): WrappedLogger => {
+    const labelledLogger = internalLogger.Label(labelStr);
 
     const logger =
       (level: LogLevel): LevelLogger =>
@@ -91,6 +93,13 @@ const createLogger = (config: LoggerConfig) => {
 
     return finalLogger;
   };
-};
+
+  // 如果呼叫時直接帶了 label 參數，則直接回傳 factory 產生的 Logger 實例 (相容 v2.x)
+  if (label && typeof label === 'string') {
+    return factory(label);
+  }
+
+  return factory;
+}
 
 export default createLogger;

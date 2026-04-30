@@ -7,25 +7,12 @@
 
 Centralized logger for 17LIVE Node.JS projects.
 
-> ... in the fires of Mount Doom, the dark lord Sauron forged, in secret, a **master logger** to control all others.<br>
-> **"One logger to log them all!"**
->
-> ![](https://i0.wp.com/media2.slashfilm.com/slashfilm/wp/wp-content/images/lordoftherings-ring-map.jpg)
-
 ## ✨ v3.0.0 Highlights
-- **100% TypeScript**: Built-in types for perfect IDE autocomplete and type safety.
+- **100% TypeScript**: Built-in types for perfect IDE autocomplete.
 - **Modern Async**: Native `async/await` support for all logging tasks.
-- **Zero Dependencies**: Lightweight and secure by removing lodash and other external libraries.
-- **Industrial Stability**: 
-  - **Timeout Protection**: Auto-discard tasks taking longer than 10s (e.g., Slack/Fluentd hangs).
-  - **Recursion Safety**: Optimized iterative `flattenObject` with circular reference and max-depth protection.
-- **100% Test Coverage**: Every logic path is verified by unit tests.
-
-## 📦 Installation
-
-```bash
-yarn add @17media/node-logger
-```
+- **Zero Dependencies**: Lightweight and secure.
+- **Backward Compatible**: 100% compatible with v2.x codebases.
+- **100% Test Coverage**: Every logic path is verified.
 
 ## 🛠 Configuration
 
@@ -33,64 +20,70 @@ yarn add @17media/node-logger
 import { createLogger, Level } from '@17media/node-logger';
 
 const loggerConfig = {
-  // Shared configs
+  // Shared configs (Recommended v3 style)
   base: {
     project: 'my-app',
     environment: 'production',
-    logLevel: Level.INFO, // default level
+    logLevel: Level.INFO,
   },
-  // Slack service
+  // OR Legacy v2 style (project/environment at top level)
+  // project: 'my-app',
+  // environment: 'production',
+
   Slack: {
     slackToken: 'xoxb-xxx',
     slackChannel: '#alerts',
-    logLevel: Level.ERROR, // Override for Slack
   },
-  // Fluentd service
-  Fluentd: {
-    collectorUrl: 'http://localhost:24224',
-  },
-  // Console service
   Console: true,
 };
 ```
 
 ## 🚀 Usage
 
-### The Easy Way (Recommended)
+### 1. The Factory Way (Recommended for v3+)
+
+This approach separates configuration initialization from label binding. It's ideal for multi-module projects where you want to share the same configuration factory across different parts of the application.
 
 ```typescript
-const logger = createLogger(loggerConfig)('auth-module');
+import { createLogger } from '@17media/node-logger';
+
+// 1. Initialize factory once
+const loggerFactory = createLogger(loggerConfig);
+
+// 2. Create labeled loggers in different modules
+const logger = loggerFactory('auth-module');
+const dbLogger = loggerFactory('db-module');
 
 await logger.info('User logged in', { userId: 123 });
-await logger.error('DB connection failed', new Error('Timeout'));
 ```
 
-### The Complete Way (Custom Message)
+### 2. The Direct Way (Legacy v2.x Support)
+
+If you are upgrading from an older version, your existing code **requires zero changes**.
 
 ```typescript
-import { Logger, LogMessage, ErrorMessage } from '@17media/node-logger';
+import { createLogger } from '@17media/node-logger';
 
-const logger = new Logger(loggerConfig);
+// Directly create a logger instance with config and label
+const logger = createLogger(loggerConfig, 'legacy-module');
 
-// Log with specific message object
-await logger.Log(
-  Level.WARN, 
-  new LogMessage('Something happened', { detail: '...' }), 
-  'custom-label'
-);
+await logger.warn('This still works perfectly!');
 ```
 
-## ⚙️ Environment Variable
+## 📋 API Differences (v2 vs v3)
 
-Override log levels dynamically using the `LOG_LEVEL` environment variable (case-insensitive):
+| Feature | v2.x (Legacy) | v3.x (Modern) | Description |
+| :--- | :--- | :--- | :--- |
+| **Initialization** | `createLogger(conf, label)` | `createLogger(conf)(label)` | v3 supports Factory pattern for better reuse. |
+| **Config Structure** | Top-level project info | Recommended inside `base` object | v3 auto-extracts top-level info for compatibility. |
+| **Return Value** | Logger Instance | Logger Factory Function | v3 intelligently returns the right type based on args. |
+| **Async Handling** | Returns `Promise<any>` | Returns `PromiseSettledResult[]` | v3 provides precise status for each service. |
+| **Data Processing** | Basic object support | Date, Map, Set, Error support | v3 preserves much more information from complex objects. |
 
-```bash
-LOG_LEVEL=DEBUG node app.js
-```
-
-## 🛡 Security Features
-- **Circular Reference Detection**: Automatically marks objects as `[Circular Reference]`.
-- **Max Depth Protection**: Default limit is 10 levels, marks as `[Max Depth Reached]` beyond that.
+## 🛡 Security & Stability
+- **Circular Reference**: Auto-detects and prevents infinite loops (Marks as `[Circular Reference]`).
+- **Max Depth Protection**: Iterative flattening limited to 10 levels (customizable).
+- **Timeout Protection**: Auto-discard tasks taking longer than 10s to prevent blocking your app.
 
 ## 🛠 Development
 
