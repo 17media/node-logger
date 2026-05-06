@@ -1,0 +1,69 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+jobs:
+  test_and_build:
+    docker:
+      - image: cimg/node:24.15.0
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run:
+          name: Run Lint
+          command: yarn lint
+      - run:
+          name: Run Tests
+          command: |
+            mkdir -p test-results/jest
+            JEST_JUNIT_OUTPUT_DIR="test-results/jest" JEST_JUNIT_OUTPUT_NAME="results.xml" yarn jest --reporters=default --reporters=jest-junit
+      - store_test_results:
+          path: test-results
+      - run:
+          name: Report Coverage to Coveralls
+          command: |
+            if [ -f coverage/lcov.info ]; then
+              # 明確指定服務名稱與開啟 verbose 模式
+              export COVERALLS_SERVICE_NAME=circleci
+              npx coveralls -v < coverage/lcov.info
+            else
+              echo "Coverage report not found, skipping Coveralls report."
+            fi
+      - run:
+          name: Build Project
+          command: yarn build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  publish:
+    docker:
+      - image: cimg/node:24.15.0
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Authenticate with Registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run:
+          name: Publish to npm
+          command: npm publish --access public
+
+workflows:
+  build-test-publish:
+    jobs:
+      - test_and_build:
+          filters:
+            tags:
+              only: /.*/
+      - publish:
+          requires:
+            - test_and_build
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+(-.*)?$/
+            branches:
+              ignore: /.*/
