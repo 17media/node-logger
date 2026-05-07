@@ -2,7 +2,7 @@
   "name": "@17live/node-logger",
   "version": "3.0.2",
   "type": "module",
-  "description": "Centralized logger for 17LIVE projects",
+  "description": "Centralized logger for 17LIVE NodeJS projects",
   "main": "lib/index.js",
   "module": "src/index.ts",
   "exports": {

@@ -5,7 +5,7 @@
 
 [繁體中文版](./README.zh-TW.md)
 
-Centralized logger for 17LIVE projects.
+Centralized logger for 17LIVE NodeJS projects.
 
 ## ✨ v3.0.0 Highlights
 - **100% TypeScript**: Built-in types for perfect IDE autocomplete.

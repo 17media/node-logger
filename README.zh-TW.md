@@ -1,6 +1,6 @@
 # node-logger v3.0.0 🚀
 
-Centralized logger for 17LIVE projects.
+Centralized logger for 17LIVE NodeJS projects.
 
 ## ✨ v3.0.0 亮點
 - **100% TypeScript**: 完整型別定義，完美支援 IDE 自動補全與開發者體驗。
