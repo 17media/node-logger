@@ -12,7 +12,7 @@ Centralized logger for 17LIVE Node.JS projects.
 ## 🛠 配置說明
 
 ```typescript
-import { createLogger, Level } from '@17media/node-logger';
+import { createLogger, Level } from '@17live/node-logger';
 
 const loggerConfig = {
   // 基礎配置 (建議 v3 寫法)
@@ -40,7 +40,7 @@ const loggerConfig = {
 這種方式將配置初始化與標籤綁定分離，適合在大型多模組應用中共享同一個工廠，並在不同模組間獲取帶有標籤的 Logger。
 
 ```typescript
-import { createLogger } from '@17media/node-logger';
+import { createLogger } from '@17live/node-logger';
 
 // 1. 初始化工廠 (只需一次)
 const loggerFactory = createLogger(loggerConfig);
@@ -57,7 +57,7 @@ await logger.info('用戶登入成功', { userId: 123 });
 如果你正從 v2 升級，現有的呼叫方式依然完全有效，不需要任何程式碼異動。
 
 ```typescript
-import { createLogger } from '@17media/node-logger';
+import { createLogger } from '@17live/node-logger';
 
 // 直接傳入配置與標籤
 const logger = createLogger(loggerConfig, 'legacy-module');
