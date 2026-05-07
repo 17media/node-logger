@@ -1,11 +1,8 @@
 {
   "name": "@17live/node-logger",
-  "version": "3.0.1",
-  "publishConfig": {
-    "access": "restricted"
-  },
+  "version": "3.0.2",
   "type": "module",
-  "description": "Centralized logger for 17LIVE Node.JS projects",
+  "description": "Centralized logger for 17LIVE projects",
   "main": "lib/index.js",
   "module": "src/index.ts",
   "exports": {
@@ -39,6 +36,9 @@
   ],
   "author": "17live",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=18.0.0"
   },
