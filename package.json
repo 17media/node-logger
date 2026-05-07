@@ -1,6 +1,9 @@
 {
-  "name": "@17media/node-logger",
-  "version": "3.0.0",
+  "name": "@17live/node-logger",
+  "version": "3.0.1",
+  "publishConfig": {
+    "access": "restricted"
+  },
   "type": "module",
   "description": "Centralized logger for 17LIVE Node.JS projects",
   "main": "lib/index.js",
@@ -34,7 +37,7 @@
     "slack",
     "fluentd"
   ],
-  "author": "17media",
+  "author": "17live",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"

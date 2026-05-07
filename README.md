@@ -1,6 +1,6 @@
 # node-logger v3.0.0 🚀
 
-[![npm (scoped)](https://img.shields.io/npm/v/@17media/node-logger.svg)]()
+[![npm (scoped)](https://img.shields.io/npm/v/@17live/node-logger.svg)]()
 [![Coverage Status](https://coveralls.io/repos/github/17media/node-logger/badge.svg?branch=master)](https://coveralls.io/github/17media/node-logger?branch=master)
 
 [繁體中文版](./README.zh-TW.md)
@@ -17,7 +17,7 @@ Centralized logger for 17LIVE Node.JS projects.
 ## 🛠 Configuration
 
 ```typescript
-import { createLogger, Level } from '@17media/node-logger';
+import { createLogger, Level } from '@17live/node-logger';
 
 const loggerConfig = {
   // Shared configs (Recommended v3 style)
@@ -45,7 +45,7 @@ const loggerConfig = {
 This approach separates configuration initialization from label binding. It's ideal for multi-module projects where you want to share the same configuration factory across different parts of the application.
 
 ```typescript
-import { createLogger } from '@17media/node-logger';
+import { createLogger } from '@17live/node-logger';
 
 // 1. Initialize factory once
 const loggerFactory = createLogger(loggerConfig);
@@ -62,7 +62,7 @@ await logger.info('User logged in', { userId: 123 });
 If you are upgrading from an older version, your existing code **requires zero changes**.
 
 ```typescript
-import { createLogger } from '@17media/node-logger';
+import { createLogger } from '@17live/node-logger';
 
 // Directly create a logger instance with config and label
 const logger = createLogger(loggerConfig, 'legacy-module');
