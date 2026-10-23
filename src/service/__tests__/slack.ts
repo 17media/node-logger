@@ -274,4 +274,35 @@ describe('service/slack', () => {
     expect(fields.find((f: any) => f.title === 'secret')).toBeUndefined();
     expect(fields.find((f: any) => f.title === 'token')).toBeUndefined();
   });
+
+  it('should format object fields as JSON strings', async () => {
+    const config = {
+      project: 'p', environment: 'e', slackToken: 't', slackChannel: 'c'
+    };
+    const logger = new Slack(config);
+    
+    // 手動建立一個未扁平化的 Mock Message 物件，用來測試 Slack service 的格式化邏輯
+    const mockMessage = {
+      toString: () => 'msg',
+      toObject: () => ({ message: 'msg', obj: { a: 1 } }),
+      get: (key: string) => (key === 'message' ? 'msg' : { a: 1 })
+    };
+
+    await logger.Log(LogLevel.INFO, mockMessage as any, 'label', 1);
+
+    expect(mockPostMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attachments: [
+          expect.objectContaining({
+            fields: [
+              expect.objectContaining({
+                title: 'obj',
+                value: '{"a":1}',
+              }),
+            ],
+          }),
+        ],
+      })
+    );
+  });
 });
