@@ -6,7 +6,7 @@ orbs:
 jobs:
   test_and_build:
     docker:
-      - image: cimg/node:24.15.0
+      - image: cimg/node:24.22.1
     steps:
       - checkout
       - node/install-packages:
@@ -41,7 +41,7 @@ jobs:
 
   publish:
     docker:
-      - image: cimg/node:24.15.0
+      - image: cimg/node:24.22.1
     steps:
       - attach_workspace:
           at: .
