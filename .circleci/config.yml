@@ -34,6 +34,9 @@ jobs:
       - run:
           name: Build Project
           command: yarn build
+      - run:
+          name: Run Smoke Test
+          command: yarn test:smoke
       - persist_to_workspace:
           root: .
           paths:
